@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UserListComponent } from './component/user-list/user-list.component';
-import { LoginComponent } from './component/login/login.component';
+import { LoginComponent } from './component/login/login.component'; // Importation du composant de connexion
+import { authGuard } from '../guards/auth.guard'; // Importation du guard d'authentification
+import { adminGuard } from '../guards/admin.guard'; // Importation du guard d'administration
 
 const routes: Routes = [
-  { path: 'users', component: UserListComponent },
+  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirige vers la page de connexion par défaut
   { path: 'login', component: LoginComponent },
 ];
 

@@ -1,49 +1,78 @@
-import { Component } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms'; // Ou ReactiveFormsModule si vous utilisez des formulaires réactifs
-import { Router } from '@angular/router'; // Pour la redirection après connexion
-import { AuthService, LoginResponse } from '../../service/auth.service'; // Ajustez le chemin d'import
+import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService, LoginResponse } from '../../service/auth.service'; 
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule 
+  ],
   templateUrl: './login.component.html',
-  imports: [FormsModule], // Si vous utilisez des formulaires réactifs, sinon retirez cette ligne
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
-  isLoading = false; // Pour afficher un indicateur de chargement
-  errorMessage: string | null = null; // Pour afficher les erreurs
 
-  // Injectez AuthService et Router
-  constructor(private authService: AuthService, private router: Router) {}
 
-  onSubmit(form: NgForm) { // Type NgForm si vous utilisez Template-driven forms
-    if (!form.valid) {
-      return; // Ne rien faire si le formulaire n'est pas valide
+export class LoginComponent implements OnInit {
+
+  // V-- Déclarer la propriété attendue par le template --V
+  loginForm!: FormGroup; // Utiliser '!' ou initialiser dans le constructeur/ngOnInit
+
+  isLoading = false;
+  errorMessage: string | null = null;
+
+  // V-- Injecter FormBuilder en plus des autres services --V
+  constructor(
+    private fb: FormBuilder, // Injecter FormBuilder
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  // V-- Initialiser le formulaire dans ngOnInit --V
+  ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      // Les clés ('email', 'password') correspondent aux formControlName du template
+      email: ['', [Validators.required, Validators.email]], // Valeur initiale, validateurs
+      password: ['', [Validators.required, Validators.minLength(6)]] // Valeur initiale, validateurs
+    });
+  }
+
+  // V-- Modifier onSubmit pour utiliser this.loginForm --V
+  onSubmit() { // Ne prend plus 'form: NgForm' en argument
+    // Vérifier la validité avec le FormGroup de la classe
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched(); // Marque tous les champs pour afficher les erreurs
+      return;
     }
 
     this.isLoading = true;
     this.errorMessage = null;
-    const email = form.value.email; // Récupère la valeur du champ nommé 'email'
-    const password = form.value.password; // Récupère la valeur du champ nommé 'password'
 
-    // Appelle la méthode login du service
-    // Important: il faut s'abonner (subscribe) pour que l'appel soit effectué !
+    // Récupérer les valeurs depuis le FormGroup de la classe
+    const email = this.loginForm.value.email;
+    const password = this.loginForm.value.password;
+
+    console.log('Tentative de connexion avec (Reactive Form):', { email, password });
+
     this.authService.login({ email, password }).subscribe({
       next: (response: LoginResponse) => {
-        // --- Succès ---
         this.isLoading = false;
-        console.log('Connexion réussie depuis le composant !', response);
-        // Rediriger vers une page protégée (ex: tableau de bord)
-        this.router.navigate(['/dashboard']); // Assurez-vous que '/dashboard' est une route définie
+        console.log('Connexion réussie !', response);
+        // this.router.navigate(['/dashboard']); // Décommentez quand la route existe
       },
       error: (error) => {
-        // --- Erreur ---
         this.isLoading = false;
-        this.errorMessage = error.message || 'Échec de la connexion. Vérifiez vos identifiants.'; // Affiche l'erreur renvoyée par handleError
-        console.error('Erreur de connexion depuis le composant:', error);
+        // Adaptez le message d'erreur si nécessaire en fonction de la réponse de l'API
+        this.errorMessage = error?.error?.message || error?.message || 'Échec de la connexion.';
+        console.error('Erreur de connexion:', error);
       }
     });
 
-    // form.reset(); // Vous pouvez réinitialiser le formulaire ici si vous le souhaitez
+    // On ne réinitialise généralement pas le formulaire en cas d'échec
+    // Si la connexion réussit, la redirection se charge de "nettoyer" la page.
+    // Si vous voulez VRAIMENT le réinitialiser : this.loginForm.reset();
   }
 }

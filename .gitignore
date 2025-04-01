@@ -1,0 +1,18 @@
+# /.gitignore (à la racine)
+
+# Dépendances Backend
+backend/node_modules/
+backend/.env
+
+# Dépendances Frontend (si générées par l'outil)
+frontend/node_modules/
+
+# Fichiers de build Frontend (exemple)
+frontend/dist/
+
+# Fichiers OS / IDE
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

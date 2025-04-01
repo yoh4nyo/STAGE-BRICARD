@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Bricard Organigrammes</title>
+    <link rel="stylesheet" href="style.css"> </head>
+<body>
+    <div class="login-container">
+        <form id="login-form">
+            <h1>Connexion</h1>
+            <h2>Application Organigrammes Bricard</h2>
+
+            <div class="input-group">
+                <label for="username">Identifiant</label>
+                <input type="text" id="username" name="username" placeholder="Entrez votre identifiant" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+            </div>
+
+            <div id="error-message" class="error-message">
+                <!-- Les messages d'erreur apparaîtront ici -->
+            </div>
+
+            <button type="submit" class="login-button">Se connecter</button>
+
+        </form>
+    </div>
+
+    <script src="script.js"></script> </body>
+</html>

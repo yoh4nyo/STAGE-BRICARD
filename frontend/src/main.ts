@@ -1,17 +1,7 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { AppComponent } from './app/app.component';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { platformBrowser } from '@angular/platform-browser';
+import { AppModule } from './app/app.module';
 
-@NgModule({
-  declarations: [AppComponent],
-  imports: [BrowserModule, HttpClientModule],
-  bootstrap: [AppComponent],
+platformBrowser().bootstrapModule(AppModule, {
+  ngZoneEventCoalescing: true,
 })
-export class AppModule {}
-
-
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+  .catch(err => console.error(err));

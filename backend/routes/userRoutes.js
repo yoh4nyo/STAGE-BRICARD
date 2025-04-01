@@ -6,6 +6,7 @@ const db = require('../config/db.js'); // Assure-toi que le chemin est correct
 
 const router = express.Router(); // Crée un routeur Express
 
+
 // Route POST /api/users (création d'utilisateur)
 router.post('/users', async (req, res) => { 
     // 1. Récupérer les données du corps de la requête

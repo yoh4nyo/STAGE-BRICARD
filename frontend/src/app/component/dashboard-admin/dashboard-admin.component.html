@@ -1,30 +1,94 @@
-<!-- Indicateur de chargement -->
-<div *ngIf="isLoading">
-    Chargement des utilisateurs...
+<div class="admin-dashboard-container">
+  <h2>Tableau de Bord Administrateur</h2>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="isLoading" class="loading-message">
+    <p>Chargement des utilisateurs...</p>
+    <!-- Optionnel: Ajouter un spinner CSS ici si désiré -->
   </div>
-  
+
   <!-- Affichage de l'erreur -->
-  <div *ngIf="errorMessage && !isLoading">
-    <p style="color: red;">Erreur : {{ errorMessage }}</p>
-    <button (click)="loadUsers()">Réessayer</button>
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <p><strong>Erreur :</strong> {{ errorMessage }}</p>
+    <button class="btn btn-secondary" (click)="loadUsers()">Réessayer</button>
   </div>
-  
-  <!-- Liste des utilisateurs -->
-  <div *ngIf="!isLoading && !errorMessage && users !== null">
-    <ul *ngIf="users.length > 0; else noUsers">
-      <li *ngFor="let user of users">
-        {{ user.firstName }} {{ user.lastName }} - {{ user.role }}
-        <ng-container *ngIf="user.isActive">  
-          <button (click)="updateUserRole(user.id, 'admin')" [disabled]="user.role === 'admin'">Make Admin</button>
-          <button (click)="deactivateUser(user.id)">Deactivate</button>
-        </ng-container>
-        <span *ngIf="!user.isActive"> (Désactivé)</span>
-      </li>
-    </ul>
-    <ng-template #noUsers>
-      <p>Aucun utilisateur trouvé.</p>
-    </ng-template>
-  </div>
-  
-  <!-- Bouton de déconnexion -->
-  <button (click)="logout()">Déconnexion</button>
+
+  <!-- Section principale (Utilisateurs et Actions) -->
+  <div *ngIf="!isLoading && !errorMessage">
+
+    <!-- Tableau des utilisateurs -->
+    <div *ngIf="users !== null" class="users-section">
+      <h3>Liste des Utilisateurs</h3>
+      <div *ngIf="users.length > 0; else noUsers" class="table-responsive">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.firstName }} {{ user.lastName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.role }}</td>
+              <td>
+                <span [ngClass]="{'status-active': user.isActive, 'status-inactive': !user.isActive}">
+                  {{ user.isActive ? 'Actif' : 'Désactivé' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <!-- Actions visibles uniquement si l'utilisateur est ACTIF -->
+                <ng-container *ngIf="user.isActive">
+                   <!-- Bouton "Make Admin" : désactivé si déjà admin -->
+                   <button class="btn btn-primary btn-sm"
+                           (click)="updateUserRole(user.id, 'admin')"
+                           [disabled]="user.role === 'admin'"
+                           title="Promouvoir en Administrateur">
+                      Admin
+                   </button>
+                   <!-- Bouton "Make Client" (Optionnel) : désactivé si déjà client -->
+                   <button class="btn btn-info btn-sm"
+                           (click)="updateUserRole(user.id, 'client')"
+                           [disabled]="user.role === 'client'"
+                           title="Rétrograder en Client">
+                      Client
+                   </button>
+                    <!-- Bouton "Deactivate" -->
+                   <button class="btn btn-warning btn-sm"
+                           (click)="deactivateUser(user.id)"
+                           title="Désactiver l'utilisateur">
+                      Désactiver
+                   </button>
+                   <!-- Ajouter ici un bouton pour supprimer si nécessaire -->
+                   <!-- <button class="btn btn-danger btn-sm" (click)="deleteUser(user.id)">Supprimer</button> -->
+                </ng-container>
+
+                <!-- Placeholder ou message si l'utilisateur est INACTIF -->
+                 <span *ngIf="!user.isActive" class="inactive-placeholder">
+                    (Utilisateur Inactif)
+                    <!-- Optionnel: Ajouter un bouton "Réactiver" ici -->
+                    <!-- <button class="btn btn-success btn-sm" (click)="activateUser(user.id)">Réactiver</button> -->
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Template si aucun utilisateur n'est trouvé -->
+      <ng-template #noUsers>
+        <p class="no-users-message">Aucun utilisateur trouvé.</p>
+      </ng-template>
+    </div>
+
+    <!-- Bouton de déconnexion -->
+    <div class="logout-section">
+      <button class="btn btn-danger" (click)="logout()">Déconnexion</button>
+    </div>
+
+  </div> <!-- Fin Section principale -->
+
+</div> <!-- Fin Container -->

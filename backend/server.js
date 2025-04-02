@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 
 
-// Utilise le routeur et préfixe les routes avec /api
 app.use('/api', userRoutes);
 
 

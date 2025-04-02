@@ -1,0 +1,264 @@
+/* Variables de couleur (ajustez la couleur orange si nécessaire) */
+:host {
+    --brand-orange: #f27405; /* Un orange vif similaire à l'image */
+    --brand-white: #ffffff;
+  }
+  
+  /* Conteneur principal de la page */
+  .client-dashboard-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Prend au moins toute la hauteur de l'écran */
+    background-color: var(--brand-white); /* Fond blanc par défaut */
+    font-family: Arial, sans-serif; /* Ou la police de votre choix */
+  }
+  
+  /* En-tête */
+  .dashboard-header {
+    background-color: var(--brand-orange);
+    color: var(--brand-white);
+    padding: 15px 25px; /* Espace intérieur (haut/bas, gauche/droite) */
+    display: flex;
+    justify-content: space-between; /* Espace entre titre et icône */
+    align-items: center; /* Alignement vertical */
+    height: 60px; /* Hauteur fixe de l'en-tête */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  }
+  
+  .header-title {
+    font-size: 1.4em; /* Taille du texte "Mes projets" */
+    font-weight: bold;
+  }
+  
+  .header-icon {
+    font-size: 1.8em; /* Taille de l'icône */
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .header-icon:hover {
+    opacity: 0.8; /* Léger effet au survol */
+  }
+  
+  /* Style alternatif si vous utilisez un bouton pour l'icône */
+  .logout-button {
+      background: none;
+      border: none;
+      color: var(--brand-white);
+      padding: 5px;
+      font-size: 1.5em; /* Ajustez si vous utilisez une icône de police */
+      cursor: pointer;
+  }
+  .logout-button:hover {
+      opacity: 0.8;
+  }
+  .logout-button .material-icons { /* Exemple avec Material Icons */
+      font-size: 28px; /* Taille de l'icône Material Icons */
+      vertical-align: middle;
+  }
+  
+  
+  /* Contenu Principal */
+  .dashboard-content {
+    flex-grow: 1; /* Permet à cette section de prendre l'espace restant */
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    padding: 20px; /* Espace autour du bouton */
+  }
+  
+  /* Bouton "Créer un projet" */
+  .create-project-btn {
+    background-color: var(--brand-orange);
+    color: var(--brand-white);
+    border: none;
+    padding: 12px 30px; /* Espace intérieur généreux */
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 6px; /* Coins arrondis */
+    cursor: pointer;
+    text-transform: uppercase; /* Texte en majuscules */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+  
+  .create-project-btn:hover {
+    background-color: #e06a04; /* Orange légèrement plus foncé au survol */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .create-project-btn:active {
+    background-color: #c95f03; /* Encore plus foncé quand cliqué */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Style de base pour les boutons (si non fourni par un framework comme Bootstrap) */
+  .btn {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    background-image: none;
+  }
+
+
+  /* --- Styles pour la Modale --- */
+
+.modal-backdrop {
+    position: fixed; /* Reste fixe même si on scrolle */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Toute la largeur */
+    height: 100vh; /* Toute la hauteur */
+    background-color: rgba(0, 0, 0, 0.6); /* Fond noir semi-transparent */
+    z-index: 1040; /* Doit être au-dessus du contenu, mais sous la modale */
+    cursor: pointer; /* Indique qu'on peut cliquer pour fermer */
+  }
+  
+  .modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centre parfaitement la modale */
+    z-index: 1050; /* Au-dessus du backdrop */
+    width: 90%; /* Largeur sur petits écrans */
+    max-width: 700px; /* Largeur maximale */
+  }
+  
+  .modal-content {
+    background-color: var(--brand-white);
+    border-radius: 8px;
+    padding: 30px 40px; /* Espace intérieur généreux */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ccc; /* Bordure grise comme dans le screenshot */
+    position: relative; /* Pour positionner le bouton de fermeture */
+  }
+  
+  .modal-title {
+    text-align: center;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px; /* Espace sous le titre */
+  }
+  
+  /* Grille pour les champs du formulaire */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* 2 colonnes responsives */
+    gap: 20px 30px; /* Espace entre lignes et colonnes */
+    margin-bottom: 30px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    margin-bottom: 8px; /* Espace sous le label */
+    font-weight: bold;
+    color: #555;
+    font-size: 0.95em;
+  }
+  
+  /* Style des inputs et selects */
+  .form-control {
+    width: 100%;
+    padding: 10px 12px; /* Espace intérieur */
+    border: 1px solid #ccc; /* Bordure grise */
+    border-radius: 6px; /* Coins arrondis */
+    font-size: 1em;
+    box-sizing: border-box; /* Inclut padding/border dans la largeur */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .form-control:focus {
+    border-color: var(--brand-orange); /* Couleur orange au focus */
+    outline: none; /* Supprime l'outline par défaut */
+    box-shadow: 0 0 0 2px rgba(242, 116, 5, 0.2); /* Légère ombre orange */
+  }
+  
+  /* Style spécifique pour le placeholder */
+  .form-control::placeholder {
+    color: #aaa;
+    opacity: 1;
+  }
+  
+  /* Style pour les selects pour afficher la flèche */
+  select.form-control {
+    appearance: none; /* Supprime l'apparence par défaut */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23aaa" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); /* Flèche SVG grise */
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 12px;
+    padding-right: 40px; /* Espace pour la flèche */
+  }
+  /* Pour IE/Edge */
+  select.form-control::-ms-expand {
+    display: none;
+  }
+  
+  /* Champ date avec icône */
+  .date-input-wrapper {
+      position: relative;
+      display: flex; /* Pour aligner input et icône si besoin */
+  }
+  .date-input {
+      padding-right: 0%;
+  }
+  .calendar-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      font-size: 1.2em;
+      pointer-events: none; /* Empêche l'icône d'interférer avec le clic sur l'input */
+  }
+  
+  /* Actions du formulaire (bouton Démarrer) */
+  .form-actions {
+    text-align: center; /* Centre le bouton */
+    margin-top: 10px; /* Espace au-dessus du bouton */
+  }
+  
+  .submit-project-btn {
+    background-color: var(--brand-orange);
+    color: var(--brand-white);
+    border: none;
+    padding: 12px 35px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: capitalize; /* "Démarrer le projet" */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+  .submit-project-btn:hover:not(:disabled) {
+    background-color: #e06a04;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  .submit-project-btn:disabled {
+      background-color: #fdab67; /* Orange plus pâle si désactivé */
+      cursor: not-allowed;
+      box-shadow: none;
+  }
+  
+  /* Bouton de fermeture optionnel (croix) */
+  .close-modal-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2.5em; /* Grosse croix */
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1; /* Ajuste l'alignement vertical de la croix */
+    padding: 0;
+    transition: color 0.2s ease;
+  }
+  .close-modal-btn:hover {
+    color: #666;
+  }

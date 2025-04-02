@@ -20,4 +20,7 @@ app.use('/api', userRoutes);
 
 app.listen(PORT, () => {
     console.log(`Backend démarré sur http://localhost:${PORT}`);
+    if (!process.env.ACCESS_TOKEN_SECRET) {
+        console.warn("\x1b[33m%s\x1b[0m", "ATTENTION: La variable d'environnement ACCESS_TOKEN_SECRET n'est pas définie ! L'authentification JWT échouera.");
+    }
 });

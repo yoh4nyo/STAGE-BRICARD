@@ -1,12 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './component/login/login.component'; // Importation du composant de connexion
-import { authGuard } from '../guards/auth.guard'; // Importation du guard d'authentification
-import { adminGuard } from '../guards/admin.guard'; // Importation du guard d'administration
+import { AuthGuard } from '../guards/auth.guard'; 
+import { adminGuard } from '../guards/admin.guard'; 
+
+// Composant
+import { LoginComponent } from './component/login/login.component';
+import { DashboardClientComponent } from './component/dashboard-client/dashboard-client.component';
+import { DashboardAdminComponent } from './component/dashboard-admin/dashboard-admin.component';
+
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirige vers la page de connexion par défaut
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'dashboard-client', component: DashboardClientComponent, canActivate: [AuthGuard], data: { role: 'client' } },
+  { path: 'dashboard-admin', component: DashboardAdminComponent, canActivate: [adminGuard], data: { role: 'admin' } },
 ];
 
 @NgModule({

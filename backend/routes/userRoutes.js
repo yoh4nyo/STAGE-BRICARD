@@ -1,18 +1,21 @@
-// Ce fichier contient les routes liées aux utilisateurs (inscription, connexion, etc.)
 const express = require('express');
 const bcrypt = require('bcrypt');
-const cors = require('cors'); // Si tu veux l'utiliser ici aussi
-const db = require('../config/db.js'); // Assure-toi que le chemin est correct
+const cors = require('cors');
+const db = require('../config/db.js');
 
-const router = express.Router(); // Crée un routeur Express
-
+const router = express.Router(); 
 
 // Route POST /api/users (création d'utilisateur)
 router.post('/users', async (req, res) => { 
+
+    // Vérification du rôle de l'utilisateur (admin requis)
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Accès refusé." });
+    }
     // 1. Récupérer les données du corps de la requête
     const { email, password, firstName, lastName, role } = req.body;
 
-    // 2. Validation simple (à améliorer si besoin)
+    // 2. Validation
     if (!email || !password || !firstName || !lastName) {
         // Manque des champs obligatoires
         return res.status(400).json({ message: "Les champs email, password, firstName et lastName sont requis." });
@@ -20,21 +23,18 @@ router.post('/users', async (req, res) => {
 
     try {
         // 3. Hacher le mot de passe avant de le stocker
-        const saltRounds = 10; // Nombre de tours de salage (standard)
+        const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // 4. Préparer la requête SQL INSERT
-        // Assurez-vous que les noms de colonnes (email, password, first_name, last_name, role, is_active)
-        // correspondent EXACTEMENT à ceux de votre table 'users' dans la BDD.
         const sql = `INSERT INTO users (email, password, first_name, last_name, role, is_active) VALUES (?, ?, ?, ?, ?, ?)`;
 
         // Définir les valeurs pour les paramètres
-        const userRole = role || 'user'; // Mettre un rôle par défaut si non fourni
-        const isActive = 1; // Activer le compte par défaut (SQLite utilise 1 pour TRUE)
+        const userRole = role || 'client';
+        const isActive = 1; 
         const params = [email, hashedPassword, firstName, lastName, userRole, isActive];
 
         // 5. Exécuter la requête SQL
-        // Utiliser function(err) pour pouvoir accéder à 'this.lastID'
         db.run(sql, params, function(err) {
             if (err) {
                 // Gérer les erreurs potentielles
@@ -49,11 +49,10 @@ router.post('/users', async (req, res) => {
                 }
             }
 
-            // 6. Insertion réussie !
+            // 6. Insertion réussie 
             console.log(`Nouvel utilisateur inséré avec l'ID: ${this.lastID}, Email: ${email}`);
 
             // Renvoyer une réponse de succès (statut 201 Created)
-            // Il est bon de renvoyer les données de l'utilisateur créé (sans le mot de passe)
             res.status(201).json({
                 message: "Utilisateur créé avec succès !",
                 user: {
@@ -62,7 +61,7 @@ router.post('/users', async (req, res) => {
                     firstName: firstName,
                     lastName: lastName,
                     role: userRole,
-                    isActive: !!isActive // Convertit 1/0 en true/false
+                    isActive: !!isActive 
                 }
             });
         });
@@ -117,19 +116,18 @@ router.post('/login', (req, res) => {
             if (isMatch) {
                 // Connexion réussie !
                 console.log(`Connexion réussie pour : ${email}`);
-                // Préparer les données utilisateur à renvoyer (SANS le mot de passe)
+                // Préparer les données utilisateur à renvoyer
                 const userToSend = {
                     id: user.id,
                     email: user.email,
                     role: user.role,
-                    firstName: user.first_name, // Adapte les noms si besoin
+                    firstName: user.first_name,
                     lastName: user.last_name
                 };
                 // Renvoyer succès et infos utilisateur
                 return res.status(200).json({
                     message: "Connexion réussie !",
                     user: userToSend
-                    // Plus tard, tu ajouteras peut-être un token JWT ici
                 });
             } else {
                 // Mot de passe incorrect
@@ -144,7 +142,7 @@ router.post('/login', (req, res) => {
 router.get('/users', async (req, res) => {
     try {
         // 1. Requête SQL pour récupérer tous les utilisateurs
-        const sql = "SELECT id, email, first_name, last_name, role, is_active FROM users"; // Sélectionne les champs pertinents
+        const sql = "SELECT id, email, first_name, last_name, role, is_active FROM users"; // Sélectionne les champs voulus
 
         // 2. Exécuter la requête
         db.all(sql, [], (err, rows) => { // db.all pour récupérer plusieurs lignes
@@ -153,14 +151,14 @@ router.get('/users', async (req, res) => {
                 return res.status(500).json({ message: "Erreur serveur lors de la récupération des utilisateurs." });
             }
 
-            // 3. Traiter les résultats (facultatif : transformer les données)
+            // 3. Traiter les résultats 
             const users = rows.map(user => ({
                 id: user.id,
                 email: user.email,
                 firstName: user.first_name,
                 lastName: user.last_name,
                 role: user.role,
-                isActive: !!user.is_active // Convertir 1/0 en true/false si nécessaire
+                isActive: !!user.is_active 
             }));
 
 
@@ -173,10 +171,6 @@ router.get('/users', async (req, res) => {
         res.status(500).json({ message: "Erreur serveur." });
     }
 });
-
-
-
-
 
 
 module.exports = router; // Exporte le routeur

@@ -1,0 +1,30 @@
+<!-- Indicateur de chargement -->
+<div *ngIf="isLoading">
+    Chargement des utilisateurs...
+  </div>
+  
+  <!-- Affichage de l'erreur -->
+  <div *ngIf="errorMessage && !isLoading">
+    <p style="color: red;">Erreur : {{ errorMessage }}</p>
+    <button (click)="loadUsers()">Réessayer</button>
+  </div>
+  
+  <!-- Liste des utilisateurs -->
+  <div *ngIf="!isLoading && !errorMessage && users !== null">
+    <ul *ngIf="users.length > 0; else noUsers">
+      <li *ngFor="let user of users">
+        {{ user.firstName }} {{ user.lastName }} - {{ user.role }}
+        <ng-container *ngIf="user.isActive">  
+          <button (click)="updateUserRole(user.id, 'admin')" [disabled]="user.role === 'admin'">Make Admin</button>
+          <button (click)="deactivateUser(user.id)">Deactivate</button>
+        </ng-container>
+        <span *ngIf="!user.isActive"> (Désactivé)</span>
+      </li>
+    </ul>
+    <ng-template #noUsers>
+      <p>Aucun utilisateur trouvé.</p>
+    </ng-template>
+  </div>
+  
+  <!-- Bouton de déconnexion -->
+  <button (click)="logout()">Déconnexion</button>

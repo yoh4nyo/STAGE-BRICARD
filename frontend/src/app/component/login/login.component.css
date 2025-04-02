@@ -1,14 +1,13 @@
 /* --- Style général --- */
 body {
     background-color: #E3F2FD;
-    font-family: 'Roboto', sans-serif; 
 }
 
 /* --- Styles de la carte --- */
 .login-container {
     padding-top: 16vh; 
     min-height: 90vh;
-    width: 100%; /* Largeur fixe pour la carte de connexion */
+    width: 100%;
 }
 
 .login-card {

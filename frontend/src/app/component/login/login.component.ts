@@ -1,78 +1,76 @@
-import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService, LoginResponse } from '../../service/auth.service'; 
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs'; 
+import { AuthService, AuthCredentials } from '../../service/auth.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule 
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 
-
-export class LoginComponent implements OnInit {
-
-  // V-- Déclarer la propriété attendue par le template --V
-  loginForm!: FormGroup; // Utiliser '!' ou initialiser dans le constructeur/ngOnInit
-
+export class LoginComponent implements OnInit, OnDestroy { 
+  loginForm: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
+  private loginSubscription: Subscription | null = null;
 
-  // V-- Injecter FormBuilder en plus des autres services --V
   constructor(
-    private fb: FormBuilder, // Injecter FormBuilder
+    private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) {}
-
-  // V-- Initialiser le formulaire dans ngOnInit --V
-  ngOnInit(): void {
+  ) {
     this.loginForm = this.fb.group({
-      // Les clés ('email', 'password') correspondent aux formControlName du template
-      email: ['', [Validators.required, Validators.email]], // Valeur initiale, validateurs
-      password: ['', [Validators.required, Validators.minLength(6)]] // Valeur initiale, validateurs
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]]
     });
   }
 
-  // V-- Modifier onSubmit pour utiliser this.loginForm --V
-  onSubmit() { // Ne prend plus 'form: NgForm' en argument
-    // Vérifier la validité avec le FormGroup de la classe
+  ngOnInit() {}
+
+
+
+  onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched(); // Marque tous les champs pour afficher les erreurs
+      this.loginForm.markAllAsTouched();
       return;
+    }
+
+    if (this.isLoading) {
+        return;
     }
 
     this.isLoading = true;
     this.errorMessage = null;
 
-    // Récupérer les valeurs depuis le FormGroup de la classe
-    const email = this.loginForm.value.email;
-    const password = this.loginForm.value.password;
+    const credentials: AuthCredentials = this.loginForm.value;
 
-    console.log('Tentative de connexion avec (Reactive Form):', { email, password });
+    this.loginSubscription?.unsubscribe();
 
-    this.authService.login({ email, password }).subscribe({
-      next: (response: LoginResponse) => {
+    // Appelle la méthode login du service
+    this.loginSubscription = this.authService.login(credentials).subscribe({
+      next: (response) => {
         this.isLoading = false;
-        console.log('Connexion réussie !', response);
-        // this.router.navigate(['/dashboard']); // Décommentez quand la route existe
+        console.log('LoginComponent: Connexion réussie ! Réponse:', response);
+        if (response.user.role === 'client') {
+          this.router.navigate(['/dashboard-client']);
+        } else if (response.user.role === 'admin') {
+          this.router.navigate(['/dashboard-admin']);
+        }
       },
       error: (error) => {
         this.isLoading = false;
-        // Adaptez le message d'erreur si nécessaire en fonction de la réponse de l'API
-        this.errorMessage = error?.error?.message || error?.message || 'Échec de la connexion.';
-        console.error('Erreur de connexion:', error);
+        // L'erreur est déjà formatée par le service
+        this.errorMessage = error.message || 'Échec de la connexion.';
+        console.error('LoginComponent: Erreur de connexion:', error);
       }
     });
+  }
 
-    // On ne réinitialise généralement pas le formulaire en cas d'échec
-    // Si la connexion réussit, la redirection se charge de "nettoyer" la page.
-    // Si vous voulez VRAIMENT le réinitialiser : this.loginForm.reset();
+  ngOnDestroy(): void {
+      this.loginSubscription?.unsubscribe();
   }
 }

@@ -1,15 +1,34 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../app/service/auth.service'; // Ajustez le chemin
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../src/app/service/auth.service'; // Adapte le chemin
 
-export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanActivate {
 
-  if (authService.isLoggedIn()) {
-    return true; // Autorisé si connecté
-  } else {
-    router.navigate(['/login']); // Rediriger vers login si non connecté
-    return false;
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(
+    route: ActivatedRouteSnapshot, // Ajoute ces deux paramètres
+    state: RouterStateSnapshot
+  ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+
+    const user = this.authService.getCurrentUserSnapshot();
+    const expectedRoles = route.data['roles'] as string[]; // Récupère les rôles attendus depuis les données de la route
+
+    if (user) {
+      // Vérifie si l'utilisateur a l'un des rôles requis
+      if (expectedRoles && !expectedRoles.includes(user.role)) {
+        console.log(`AuthGuard: Accès refusé, rôle requis: ${expectedRoles}, rôle utilisateur: ${user.role}`);
+        // Redirige vers une page d'accès non autorisé ou la page de connexion
+        return this.router.createUrlTree(['/unauthorized']); // Ou /login
+      }
+      return true; // Autorise l'accès si l'utilisateur a le bon rôle
+    } else {
+      console.log('AuthGuard: Accès refusé (utilisateur non connecté), redirection vers /login');
+      return this.router.createUrlTree(['/login']); // Redirige vers la page de login si non connecté
+    }
   }
-};
+}

@@ -1,55 +1,77 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-// Imports RxJS nécessaires
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-// Import pour la navigation
+import { catchError, tap, map } from 'rxjs/operators'; // map est déjà importé, c'est bon
 import { Router } from '@angular/router';
 
-// Interface pour l'utilisateur (déjà bonne !)
+// Interface pour l'utilisateur (inchangée)
 export interface User {
   id: number;
   email: string;
-  role: 'admin' | 'client' | string; // Type plus précis si possible ('admin' | 'client')
+  role: 'admin' | 'client' | string;
+  isActive: number; // 1 pour actif, 0 pour inactif // Garder number si l'API renvoie 0/1
+  // Si l'API renvoyait true/false, il faudrait : isActive: boolean;
   firstName: string;
   lastName: string;
 }
 
-// Interface pour la réponse de login (déjà bonne !)
+// Interface pour la réponse de login (inchangée)
 export interface LoginResponse {
   message: string;
-  user: User; // L'API doit renvoyer l'objet User complet avec le rôle
-  // token?: string; // Prêt si vous ajoutez JWT
+  user: User;
 }
 
-// Interface pour les credentials de login
+// Interface pour les credentials de login (inchangée)
 export interface AuthCredentials {
   email: string;
   password?: string;
 }
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3001/api'; // Adaptez si nécessaire
+  // --- Correction ici ---
+  getUsers(): Observable<User[]> {
+    // 1. Typage de http.get pour correspondre à la réponse réelle de l'API: { users: User[] }
+    // 2. Utilisation de pipe(map(...)) pour extraire le tableau response.users
+    // 3. Ajout de catchError pour la cohérence
+    return this.http.get<{ users: User[] }>(`${this.apiUrl}/users`) // Utiliser apiUrl
+      .pipe(
+        map(response => response.users), // Extrait le tableau du wrapper { users: [...] }
+        catchError(this.handleError) // Applique la gestion d'erreur existante
+      );
+  }
+  // --- Fin de la correction ---
 
-  // V-- BehaviorSubject pour gérer l'état de l'utilisateur connecté --V
-  // Initialisé avec l'utilisateur potentiellement stocké dans localStorage
+
+  // Méthode updateUser légèrement ajustée (utilisation de apiUrl et PATCH suggéré)
+  updateUser(userId: number, updateData: { isActive: number }): Observable<User> {
+    // Utilise PATCH car c'est une mise à jour partielle. Remettre PUT si le backend ne supporte que ça.
+    // S'assurer que l'API retourne l'objet User mis à jour.
+    return this.http.patch<User>(`${this.apiUrl}/users/${userId}`, updateData)
+      .pipe(catchError(this.handleError));
+  }
+
+  private apiUrl = 'http://localhost:3001/api'; // Assurez-vous que c'est la bonne base
   private userSubject = new BehaviorSubject<User | null>(this.loadUserFromStorage());
-  // Observable public pour que les composants s'y abonnent
   currentUser$ = this.userSubject.asObservable();
 
-  // V-- Injection de Router pour la navigation --V
   constructor(private http: HttpClient, private router: Router) { }
 
-  // --- Méthode pour récupérer l'utilisateur actuel (instantané) ---
   getCurrentUserSnapshot(): User | null {
     return this.userSubject.getValue();
   }
 
-  // --- Méthode pour la connexion ---
+  // Méthode updateRole légèrement ajustée (utilisation de apiUrl et PATCH suggéré)
+  updateRole(userId: number, newRole: string): Observable<User> {
+    // Utilise PATCH car c'est une mise à jour partielle.
+    // S'assurer que l'API retourne l'objet User mis à jour.
+    return this.http.patch<User>(`${this.apiUrl}/users/${userId}`, { role: newRole })
+     .pipe(catchError(this.handleError));
+  }
+
+  // --- Méthode pour la connexion (inchangée) ---
   login(credentials: AuthCredentials): Observable<LoginResponse> {
     const loginUrl = `${this.apiUrl}/login`;
     console.log('Tentative de connexion via le service pour:', credentials.email);
@@ -59,23 +81,21 @@ export class AuthService {
         tap(response => {
           console.log('Réponse du login service:', response);
           if (response && response.user) {
-             // V-- Stocker l'utilisateur et émettre la nouvelle valeur --V
-            this.storeUserData(response.user); // Sauvegarde dans localStorage
-            this.userSubject.next(response.user); // Met à jour le BehaviorSubject
+            this.storeUserData(response.user);
+            this.userSubject.next(response.user);
             console.log('Utilisateur connecté et rôle stocké:', response.user.role);
           } else {
-            // Gérer le cas où la réponse n'est pas valide (rare si le backend est correct)
              console.error("Réponse de login invalide ou utilisateur manquant", response);
-             this.handleLogoutInternal(); // Déconnecter en cas de réponse invalide
+             this.handleLogoutInternal();
           }
         }),
-        catchError(this.handleError) // Gestion des erreurs HTTP
+        catchError(this.handleError)
       );
   }
 
    // --- Méthode pour l'inscription (inchangée) ---
    register(userData: any): Observable<any> {
-    const registerUrl = `${this.apiUrl}/users`;
+    const registerUrl = `${this.apiUrl}/users`; // Utilisation de apiUrl
     return this.http.post<any>(registerUrl, userData)
       .pipe(
         tap(response => console.log('Réponse de l\'inscription:', response)),
@@ -93,53 +113,47 @@ export class AuthService {
     }
   }
 
-  // --- Chargement initial depuis localStorage (anciennement partie de getCurrentUser) ---
+  // --- Chargement initial depuis localStorage (inchangé) ---
   private loadUserFromStorage(): User | null {
      try {
         const userString = localStorage.getItem('currentUser');
         return userString ? JSON.parse(userString) : null;
      } catch (e) {
         console.error("Erreur lors du chargement depuis localStorage", e);
-        localStorage.removeItem('currentUser'); // Nettoyer si corrompu
+        localStorage.removeItem('currentUser');
         return null;
      }
   }
 
-  // --- Déconnexion (publique) ---
+  // --- Déconnexion (publique) (inchangée) ---
   logout() {
      this.handleLogoutInternal();
-     this.router.navigate(['/login']); // Rediriger l'utilisateur
+     this.router.navigate(['/login']);
   }
 
-  // --- Logique interne de déconnexion ---
+  // --- Logique interne de déconnexion (inchangée) ---
   private handleLogoutInternal() {
      localStorage.removeItem('currentUser');
-     this.userSubject.next(null); // Émettre null pour notifier la déconnexion
+     this.userSubject.next(null);
      console.log('Utilisateur déconnecté');
   }
 
-  // V-- Méthodes utilitaires pour vérifier le rôle et l'état --V
+  // --- Méthodes utilitaires pour vérifier le rôle et l'état (inchangées) ---
   isLoggedIn(): boolean {
-     // Vérifie simplement si un utilisateur est dans le BehaviorSubject
      return !!this.userSubject.getValue();
-     // Alternativement, si vous avez un token: return !!this.userSubject.getValue()?.token;
   }
 
   isAdmin(): boolean {
     const user = this.userSubject.getValue();
-    // Vérifie si l'utilisateur existe ET si son rôle est 'admin' (insensible à la casse pour plus de robustesse)
     return !!user && user.role?.toLowerCase() === 'admin';
   }
 
   isClient(): boolean {
     const user = this.userSubject.getValue();
-    // Vérifie si l'utilisateur existe ET si son rôle est 'client'
     return !!user && user.role?.toLowerCase() === 'client';
   }
-  // --- Fin des méthodes utilitaires ---
 
-
-  // --- Gestionnaire d'erreurs (inchangé mais toujours utile) ---
+  // --- Gestionnaire d'erreurs (inchangé) ---
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Une erreur inconnue est survenue!';
     if (error.error instanceof ErrorEvent) {
@@ -148,14 +162,13 @@ export class AuthService {
        console.error(
          `Code d'erreur backend ${error.status}, ` +
          `Corps: ${JSON.stringify(error.error)}`);
-       // Essayer d'utiliser le message du backend ou un message par défaut
        errorMessage = error.error?.message || `Erreur serveur (${error.status})`;
-       if (error.status === 401) { // Erreur d'authentification spécifique
+       if (error.status === 401) {
           errorMessage = "Email ou mot de passe incorrect.";
        }
+       // Tu pourrais ajouter d'autres codes d'erreur ici (403 Forbidden, etc.)
     }
     console.error(errorMessage);
-    // Renvoyer l'erreur pour que le composant puisse aussi réagir
     return throwError(() => new Error(errorMessage));
   }
 }

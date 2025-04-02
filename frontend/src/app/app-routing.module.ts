@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '../guards/auth.guard'; 
-import { adminGuard } from '../guards/admin.guard'; 
+import { AuthGuard } from './guards/auth.guard'; // Assurez-vous que le chemin est correct
+import { adminGuard } from './guards/admin.guard'; // Assurez-vous que le chemin est correct
 
 // Composant
 import { LoginComponent } from './component/login/login.component';

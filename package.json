@@ -2,6 +2,7 @@
   "dependencies": {
     "@angular/forms": "^19.2.4",
     "@angular/router": "^19.2.4",
+    "@ng-bootstrap/ng-bootstrap": "^18.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.17",
     "bcrypt": "^5.1.1",

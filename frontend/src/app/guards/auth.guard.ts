@@ -23,12 +23,12 @@ export class AuthGuard implements CanActivate {
       if (expectedRoles && !expectedRoles.includes(user.role)) {
         console.log(`AuthGuard: Accès refusé, rôle requis: ${expectedRoles}, rôle utilisateur: ${user.role}`);
         // Redirige vers une page d'accès non autorisé ou la page de connexion
-        return this.router.createUrlTree(['/unauthorized']); // Ou /login
+        return this.router.createUrlTree(['/login']); // Ou /login
       }
       return true; // Autorise l'accès si l'utilisateur a le bon rôle
     } else {
       console.log('AuthGuard: Accès refusé (utilisateur non connecté), redirection vers /login');
-      return this.router.createUrlTree(['/login']); // Redirige vers la page de login si non connecté
+      return this.router.createUrlTree(['/login']);
     }
   }
 }

@@ -1,9 +1,5 @@
-# /.gitignore (à la racine)
-
 # Dépendances Backend
 backend/node_modules/
-backend/.env
-
 # Dépendances Frontend (si générées par l'outil)
 frontend/node_modules/
 

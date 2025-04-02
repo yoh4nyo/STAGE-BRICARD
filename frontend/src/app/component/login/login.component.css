@@ -1,0 +1,78 @@
+/* --- Style général --- */
+body {
+    background-color: #E3F2FD;
+    font-family: 'Roboto', sans-serif; 
+}
+
+/* --- Styles de la carte --- */
+.login-container {
+    padding-top: 16vh; 
+    min-height: 90vh;
+    width: 100%; /* Largeur fixe pour la carte de connexion */
+}
+
+.login-card {
+    border: none; 
+    border-radius: 0.75rem; 
+    background-color: #FFFFFF; 
+}
+
+.login-header {
+    color: #014289;
+    font-weight: 700; 
+}
+
+/* --- Styles des champs du formulaire --- */
+.form-floating > .form-control {
+    border-radius: 0.375rem; 
+    border-color: #CED4DA; 
+}
+
+.form-floating > .form-control:focus {
+    border-color: #014289; 
+    box-shadow: 0 0 0 0.25rem rgba(13, 71, 161, 0.25); 
+}
+
+/* Message d'erreur pour les champs invalides */
+.invalid-feedback small {
+    display: block;
+    color: #dc3545; 
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+.form-control.is-invalid:focus {
+    border-color: #dc3545; 
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+
+/* --- Styles du bouton --- */
+.login-button {
+    background-color: #ff8a3c; 
+    border-color: #ff8a3c;  
+    color: #FFFFFF;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    border-radius: 0.375rem;
+}
+
+.login-button:hover {
+    background-color: #ff6701; 
+    border-color: #ff6701;
+}
+
+.login-button:focus {
+    color: #FFFFFF;
+    box-shadow: 0 0 0 0.25rem rgba(13, 71, 161, 0.25);
+}
+
+/* Ajustement du spinner dans le bouton */
+.login-button .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+    vertical-align: -0.125em;
+}

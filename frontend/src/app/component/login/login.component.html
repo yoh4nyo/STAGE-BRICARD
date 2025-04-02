@@ -1,26 +1,65 @@
-<h2>Connexion</h2>
+<div class="container login-container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5 col-xl-4">
+      <div class="card shadow-lg login-card">
+        <div class="card-body p-4 p-md-5">
+          <h2 class="card-title text-center mb-4 login-header">Connexion</h2>
 
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label for="email">Email:</label>
-    <input type="email" id="email" formControlName="email" required>
-    <div *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)">
-      <small *ngIf="loginForm.get('email')?.errors?.['required']">Email requis.</small>
-      <small *ngIf="loginForm.get('email')?.errors?.['email']">Format d'email invalide.</small>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+            <!-- Champ Email -->
+            <div class="form-floating mb-3">
+              <input
+                type="email"
+                id="email"
+                class="form-control"
+                formControlName="email"
+                placeholder="name@example.com"
+                required
+                [ngClass]="{ 'is-invalid': loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched) }"
+              >
+              <label for="email">Email</label>
+              <div *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)"
+                   class="invalid-feedback">
+                <small *ngIf="loginForm.get('email')?.errors?.['required']">L'email est requis.</small>
+                <small *ngIf="loginForm.get('email')?.errors?.['email']">Format d'email invalide.</small>
+              </div>
+            </div>
+
+            <!-- Champ Mot de passe -->
+            <div class="form-floating mb-4">
+              <input
+                type="password"
+                id="password"
+                class="form-control"
+                formControlName="password"
+                placeholder="Mot de passe"
+                required
+                [ngClass]="{ 'is-invalid': loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched) }"
+               >
+              <label for="password">Mot de passe</label>
+              <div *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"
+                   class="invalid-feedback">
+                <small *ngIf="loginForm.get('password')?.errors?.['required']">Le mot de passe est requis.</small>
+              </div>
+            </div>
+
+            <!-- Message d'erreur général -->
+            <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+              <div>
+                {{ errorMessage }}
+              </div>
+            </div>
+
+            <!-- Bouton de connexion -->
+              <button typebtn="submit" class="btn w-100 btn-lg login-button" [disabled]="!loginForm.valid || isLoading">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+              </button>
+
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div>
-    <label for="password">Mot de passe:</label>
-    <input type="password" id="password" formControlName="password" required>
-    <div *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)">
-      <small *ngIf="loginForm.get('password')?.errors?.['required']">Mot de passe requis.</small>
-    </div>
-  </div>
-
-  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-  <button type="submit" [disabled]="!loginForm.valid || isLoading">
-    {{ isLoading ? 'Connexion en cours...' : 'Se connecter' }}
-  </button>
-</form>
+</div>

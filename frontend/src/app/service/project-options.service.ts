@@ -4,14 +4,38 @@ import { Observable } from 'rxjs';
 
 // Interface pour les niveaux de sécurité
 export interface SecurityLevel {
-  code: string; // La valeur interne (ex: 'Dual XP S2')
-  label: string; // Le texte affiché (ex: 'Niveau 4: Dual XP S2')
+  code: string; 
+  label: string; 
 }
 
-// Ajoutons aussi l'interface pour les types d'organigramme
+// interface pour les types d'organigramme
 export interface OrganigrammeType {
-    code: string; // ex: 'passe_generale'
-    label: string; // ex: 'PG (Passe Général)'
+    code: string; 
+    label: string;
+}
+
+export interface ProjectCreatePayload {
+  name: string;
+  type: string;
+  creationDate: string;
+  securityLevel: string;
+  userId: number;
+}
+
+export interface ProjectCreationResponse {
+  message: string;
+  projectId: number;
+}
+
+// ---> AJOUT: Interface pour les détails de l'étape 2 <---
+//    Les propriétés sont optionnelles car toutes ne s'appliquent pas à chaque type
+export interface ProjectDetailsPayload {
+  logementDoors?: number | null;
+  hasPrivateCellars?: boolean | null; // Garde boolean ici, conversion en backend
+  commonDoors?: number | null;
+  extraCommonKeys?: boolean | null; // Garde boolean ici
+  pgKeys?: number | null;
+  totalDoorsPG?: number | null;
 }
 
 
@@ -32,5 +56,15 @@ export class ProjectOptionsService {
   // Méthode pour récupérer les types d'organigrammes
   getOrganigrammeTypes(): Observable<OrganigrammeType[]> {
     return this.http.get<OrganigrammeType[]>(`${this.apiUrl}/organigramme-types`);
+  }
+
+  createProject(projectData: ProjectCreatePayload): Observable<ProjectCreationResponse> {
+    console.log('Creating project with data:', projectData); // Log the project data
+    return this.http.post<ProjectCreationResponse>(`${this.apiUrl}/projects`, projectData);
+  }
+
+  updateProjectDetails(projectId: number, details: ProjectDetailsPayload): Observable<any> {
+    console.log(`Service: Calling PATCH /api/projects/${projectId}/details with data:`, details);
+    return this.http.patch<any>(`${this.apiUrl}/projects/${projectId}/details`, details);
   }
 }

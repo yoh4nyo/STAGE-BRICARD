@@ -16,100 +16,191 @@
 </div>
 
 
-<!-- === MODALE === -->
+<!-- === MODALE MULTI-ÉTAPES === -->
 <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
 
 <div class="modal-container" *ngIf="isModalOpen">
   <div class="modal-content">
-    <h2 class="modal-title">Nouveau projet</h2>
 
-    <form (ngSubmit)="submitProject()" #projectForm="ngForm">
-      <div class="form-grid">
+    <!-- Affiche le contenu de l'Étape 1 -->
+    <div *ngIf="currentStep === 1">
+      <h2 class="modal-title">Nouveau projet - Étape 1/2 : Informations générales</h2>
+      <form (ngSubmit)="submitStep1(projectFormStep1)" #projectFormStep1="ngForm" novalidate>
+        <div class="form-grid">
 
-        <!-- Champ Nom du projet (inchangé) -->
-        <div class="form-group">
-          <label for="projectName">Nom du projet</label>
-          <input type="text"
-                 id="projectName"
-                 name="projectName"
-                 class="form-control"
-                 placeholder="Entrez le nom du projet"
-                 [(ngModel)]="newProject.name"
-                 required>
-          <!-- Optionnel: Ajouter un message d'erreur si le champ est invalide après interaction -->
-          <!-- <div *ngIf="projectForm.controls['projectName']?.invalid && (projectForm.controls['projectName']?.dirty || projectForm.controls['projectName']?.touched)">
-               <small class="text-danger">Le nom du projet est requis.</small>
-             </div> -->
-        </div>
+          <!-- Champ Nom du projet -->
+          <div class="form-group">
+            <label for="projectName">Nom du projet</label>
+            <input type="text"
+                   id="projectName"
+                   name="projectName"
+                   class="form-control"
+                   placeholder="Entrez le nom du projet"
+                   [(ngModel)]="newProject.name"
+                   required
+                   #nameInput="ngModel">
+             <!-- Message d'erreur -->
+             <div *ngIf="nameInput.invalid && (nameInput.dirty || nameInput.touched)" class="text-danger mt-1">
+                <small *ngIf="nameInput.errors?.['required']">Le nom du projet est requis.</small>
+             </div>
+          </div>
 
-        <!-- Champ Type d'organigramme (MODIFIÉ) -->
-        <div class="form-group">
-          <label for="projectType">Choix du type d'organigramme</label>
-          <select id="projectType"
-                  name="projectType"
-                  class="form-control"
-                  [(ngModel)]="newProject.type"
-                  required>
-            <!-- Option par défaut, valeur vide pour la validation 'required' -->
-            <option [ngValue]="null" disabled selected>Sélectionnez un type...</option> <!-- ou [ngValue]="''" -->
-            <!-- Boucle sur les types chargés depuis l'API -->
-          </select>
-           <!-- Optionnel: Message d'erreur -->
-          <!-- <div *ngIf="projectForm.controls['projectType']?.invalid && (projectForm.controls['projectType']?.dirty || projectForm.controls['projectType']?.touched)">
-               <small class="text-danger">Le type d'organigramme est requis.</small>
-           </div> -->
-        </div>
-
-        <!-- Champ Date de création (inchangé) -->
-        <div class="form-group">
-            <label for="creationDate">Date de création</label>
-            <div class="date-input-wrapper">
-                <input type="date" id="creationDate" name="creationDate" class="form-control" [(ngModel)]="newProject.creationDate" required>
+          <!-- Champ Type d'organigramme -->
+          <div class="form-group">
+            <label for="projectType">Choix du type d'organigramme</label>
+            <select id="projectType"
+                    name="projectType"
+                    class="form-control"
+                    [(ngModel)]="newProject.type"
+                    required
+                    #typeSelect="ngModel">
+              <option [ngValue]="null" disabled selected>Sélectionnez un type...</option>
+              <option *ngFor="let type of organigrammeTypes" [value]="type.code">
+                {{ type.label }}
+              </option>
+            </select>
+            <!-- Message d'erreur -->
+            <div *ngIf="typeSelect.invalid && (typeSelect.dirty || typeSelect.touched)" class="text-danger mt-1">
+               <small *ngIf="typeSelect.errors?.['required']">Le type est requis.</small>
             </div>
-             <!-- Optionnel: Message d'erreur -->
-            <!-- <div *ngIf="projectForm.controls['creationDate']?.invalid && (projectForm.controls['creationDate']?.dirty || projectForm.controls['creationDate']?.touched)">
-                 <small class="text-danger">La date de création est requise.</small>
-             </div> -->
+          </div>
+
+          <!-- Champ Date de création -->
+          <div class="form-group">
+              <label for="creationDate">Date de création</label>
+              <div class="date-input-wrapper">
+                  <input type="date" id="creationDate" name="creationDate" class="form-control" [(ngModel)]="newProject.creationDate" required #dateInput="ngModel">
+              </div>
+               <!-- Message d'erreur -->
+               <div *ngIf="dateInput.invalid && (dateInput.dirty || dateInput.touched)" class="text-danger mt-1">
+                  <small *ngIf="dateInput.errors?.['required']">La date est requise.</small>
+               </div>
+          </div>
+
+          <!-- Champ Niveau de sécurité -->
+          <div class="form-group">
+            <label for="securityLevel">Choix du niveau de sécurité</label>
+            <select id="securityLevel"
+                    name="securityLevel"
+                    class="form-control"
+                    [(ngModel)]="newProject.securityLevel"
+                    required
+                    #levelSelect="ngModel">
+              <option [ngValue]="null" disabled selected>Sélectionnez un niveau...</option>
+              <option *ngFor="let level of securityLevels" [value]="level.code">
+                {{ level.label }}
+              </option>
+            </select>
+             <!-- Message d'erreur -->
+             <div *ngIf="levelSelect.invalid && (levelSelect.dirty || levelSelect.touched)" class="text-danger mt-1">
+                <small *ngIf="levelSelect.errors?.['required']">Le niveau est requis.</small>
+             </div>
+          </div>
+
+        </div> <!-- Fin form-grid Étape 1 -->
+
+        <!-- Bouton d'envoi Étape 1 -->
+        <div class="form-actions">
+          <button type="submit" class="btn submit-project-btn" [disabled]="projectFormStep1.invalid || isSubmitting">
+             {{ isSubmitting ? 'Création...' : 'Continuer vers Étape 2' }}
+          </button>
         </div>
 
-
-        <!-- Champ Niveau de sécurité (MODIFIÉ) -->
-        <div class="form-group">
-          <label for="securityLevel">Choix du niveau de sécurité</label>
-          <select id="securityLevel"
-                  name="securityLevel"
-                  class="form-control"
-                  [(ngModel)]="newProject.securityLevel"
-                  required>
-             <!-- Option par défaut, valeur vide pour la validation 'required' -->
-            <option [ngValue]="null" disabled selected>Sélectionnez un niveau...</option> <!-- ou [ngValue]="''" -->
-            <!-- Boucle sur les niveaux chargés depuis l'API -->
-            <!-- 'level.code' sera la valeur stockée (ex: 'Dual XP S2') -->
-            <!-- 'level.label' sera le texte affiché (ex: 'Niveau 4: Dual XP S2') -->
-            <option *ngFor="let level of securityLevels" [value]="level.code">
-              {{ level.label }}
-            </option>
-          </select>
-           <!-- Optionnel: Message d'erreur -->
-          <!-- <div *ngIf="projectForm.controls['securityLevel']?.invalid && (projectForm.controls['securityLevel']?.dirty || projectForm.controls['securityLevel']?.touched)">
-               <small class="text-danger">Le niveau de sécurité est requis.</small>
-           </div> -->
-        </div>
-
-      </div> <!-- Fin form-grid -->
-
-      <!-- Bouton d'envoi (Validation Angular Form) -->
-      <div class="form-actions">
-        <!-- Le bouton est désactivé si le formulaire n'est pas valide OU si une soumission est en cours -->
-        <button type="submit" class="btn submit-project-btn" [disabled]="!projectForm.form.valid || isSubmitting">
-           {{ isSubmitting ? 'Création...' : 'Démarrer le projet' }}
-        </button>
-      </div>
-
-    </form> <!-- Fin du formulaire -->
+      </form> <!-- Fin Formulaire Étape 1 -->
+    </div> <!-- Fin *ngIf currentStep === 1 -->
 
 
-    <button class="close-modal-btn" (click)="closeModal()" title="Fermer">×</button>
+    <!-- Affiche le contenu de l'Étape 2 -->
+    <div *ngIf="currentStep === 2">
+        <h2 class="modal-title">Nouveau projet - Étape 2/2 : Détails</h2>
+        <form (ngSubmit)="submitStep2(projectFormStep2)" #projectFormStep2="ngForm" novalidate>
+            <div class="form-grid"> <!-- Utilisation possible d'une grille aussi -->
+
+                <!-- Questions conditionnelles basées sur newProject.type (qui a été défini à l'étape 1) -->
+
+                <!-- Questions pour IM ou IM/PG -->
+                <ng-container *ngIf="newProject.type === 'im' || newProject.type === 'pg_im'">
+                    <h4 class="step2-section-title">Configuration Immeuble (IM)</h4>
+                    <div class="form-group">
+                        <label for="logementDoors">Nb portes logements/bureaux :</label>
+                        <input type="number" id="logementDoors" name="logementDoors" class="form-control" [(ngModel)]="projectDetails.logementDoors" min="0" required #logementDoorsInput="ngModel">
+                        <div *ngIf="logementDoorsInput.invalid && (logementDoorsInput.dirty || logementDoorsInput.touched)" class="text-danger mt-1">
+                            <small *ngIf="logementDoorsInput.errors?.['required']">Nombre requis.</small>
+                            <small *ngIf="logementDoorsInput.errors?.['min']">Doit être >= 0.</small>
+                        </div>
+                    </div>
+                     <div class="form-group"> <!-- Uniquement si logement? Adapter la condition si besoin -->
+                        <label>Caves privées par logement ?</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="hasPrivateCellars" id="cellarsYes" [value]="true" [(ngModel)]="projectDetails.hasPrivateCellars" required>
+                            <label class="form-check-label" for="cellarsYes">Oui</label>
+                        </div>
+                         <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="hasPrivateCellars" id="cellarsNo" [value]="false" [(ngModel)]="projectDetails.hasPrivateCellars" required>
+                            <label class="form-check-label" for="cellarsNo">Non</label>
+                        </div>
+                         <!-- Validation pour les boutons radio est moins directe, mais le required aide -->
+                    </div>
+                    <div class="form-group">
+                        <label for="commonDoors">Nb portes parties communes :</label>
+                        <input type="number" id="commonDoors" name="commonDoors" class="form-control" [(ngModel)]="projectDetails.commonDoors" min="0" required #commonDoorsInput="ngModel">
+                        <div *ngIf="commonDoorsInput.invalid && (commonDoorsInput.dirty || commonDoorsInput.touched)" class="text-danger mt-1">
+                           <small *ngIf="commonDoorsInput.errors?.['required']">Nombre requis.</small>
+                           <small *ngIf="commonDoorsInput.errors?.['min']">Doit être >= 0.</small>
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <label>Clés additionnelles pour parties communes ?</label>
+                         <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="extraCommonKeys" id="extraKeysYes" [value]="true" [(ngModel)]="projectDetails.extraCommonKeys" required>
+                            <label class="form-check-label" for="extraKeysYes">Oui</label>
+                        </div>
+                         <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="extraCommonKeys" id="extraKeysNo" [value]="false" [(ngModel)]="projectDetails.extraCommonKeys" required>
+                            <label class="form-check-label" for="extraKeysNo">Non</label>
+                        </div>
+                    </div>
+                </ng-container>
+
+                 <!-- Questions pour PG ou IM/PG -->
+                <ng-container *ngIf="newProject.type === 'pg' || newProject.type === 'pg_im'">
+                     <h4 class="step2-section-title">Configuration Passe Général (PG)</h4>
+                     <!-- Uniquement pour PG pur ? -->
+                     <div class="form-group" *ngIf="newProject.type === 'pg'">
+                        <label for="totalDoorsPG">Nb total de portes à équiper (PG) :</label>
+                        <input type="number" id="totalDoorsPG" name="totalDoorsPG" class="form-control" [(ngModel)]="projectDetails.totalDoorsPG" min="0" required #totalDoorsPGInput="ngModel">
+                        <div *ngIf="totalDoorsPGInput.invalid && (totalDoorsPGInput.dirty || totalDoorsPGInput.touched)" class="text-danger mt-1">
+                           <small *ngIf="totalDoorsPGInput.errors?.['required']">Nombre requis.</small>
+                           <small *ngIf="totalDoorsPGInput.errors?.['min']">Doit être >= 0.</small>
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="pgKeys">Nb clés Passe Général :</label>
+                        <input type="number" id="pgKeys" name="pgKeys" class="form-control" [(ngModel)]="projectDetails.pgKeys" min="1" required #pgKeysInput="ngModel">
+                         <div *ngIf="pgKeysInput.invalid && (pgKeysInput.dirty || pgKeysInput.touched)" class="text-danger mt-1">
+                           <small *ngIf="pgKeysInput.errors?.['required']">Nombre requis.</small>
+                           <small *ngIf="pgKeysInput.errors?.['min']">Doit être >= 1.</small>
+                        </div>
+                     </div>
+                </ng-container>
+
+            </div> <!-- Fin form-grid Étape 2 -->
+
+            <!-- Boutons d'action Étape 2 -->
+            <div class="form-actions">
+                 <button type="button" class="btn btn-secondary mr-2" (click)="goToStep1()" [disabled]="isSubmitting">
+                     Retour Étape 1
+                 </button>
+                 <button type="submit" class="btn submit-project-btn" [disabled]="projectFormStep2.invalid || isSubmitting">
+                     {{ isSubmitting ? 'Sauvegarde...' : 'Terminer et aller à la matrice' }}
+                 </button>
+            </div>
+
+        </form> <!-- Fin Formulaire Étape 2 -->
+    </div> <!-- Fin *ngIf currentStep === 2 -->
+
+    <!-- Bouton Fermer (toujours visible) -->
+    <button class="close-modal-btn" (click)="closeModal()" title="Fermer" [disabled]="isSubmitting">×</button>
 
   </div> <!-- Fin modal-content -->
 </div> <!-- Fin modal-container -->

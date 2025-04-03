@@ -5,6 +5,7 @@ const cors = require('cors');
 const db = require('./config/db.js');
 const userRoutes = require('./routes/userRoutes'); 
 const projectOptionsRoutes = require('./routes/projectOptionsRoutes');
+const projectRoutes = require('./routes/projectRoutes'); 
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', userRoutes);
 app.use('/api', projectOptionsRoutes);
+app.use('/api', projectRoutes);
 
 
 app.listen(PORT, () => {

@@ -1,3 +1,4 @@
 body {
     font-family: "Libre Franklin", sans-serif; /* Utilisation de la police Libre Franklin */
 }
+html, body { height: 100%; }

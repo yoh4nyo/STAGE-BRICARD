@@ -1,37 +1,32 @@
-<!-- === CONTENU EXISTANT DU DASHBOARD CLIENT === -->
 <div class="client-dashboard-page">
-  <!-- En-tête orange -->
+  <!-- En-tête (inchangé) -->
   <header class="dashboard-header">
     <span class="header-title">Mes projets</span>
     <span class="header-icon logout-icon" (click)="logout()" title="Déconnexion" role="button" tabindex="0">
-      ➡
+      <i class="bi bi-box-arrow-right"></i>
     </span>
   </header>
 
-  <!-- Contenu principal -->
+  <!-- Contenu principal (inchangé) -->
   <main class="dashboard-content">
-    <!-- Bouton qui OUVRE la modale -->
     <button class="btn create-project-btn" (click)="openModal()">
       CRÉER UN PROJET
     </button>
   </main>
 </div>
-<!-- === FIN DU CONTENU EXISTANT === -->
 
 
-<!-- === NOUVELLE STRUCTURE POUR LA MODALE === -->
+<!-- === MODALE === -->
 <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
 
 <div class="modal-container" *ngIf="isModalOpen">
   <div class="modal-content">
     <h2 class="modal-title">Nouveau projet</h2>
 
-    <!-- Formulaire de création -->
-    <!-- Utiliser ngSubmit pour appeler la méthode de soumission -->
     <form (ngSubmit)="submitProject()" #projectForm="ngForm">
       <div class="form-grid">
 
-        <!-- Champ Nom du projet -->
+        <!-- Champ Nom du projet (inchangé) -->
         <div class="form-group">
           <label for="projectName">Nom du projet</label>
           <input type="text"
@@ -41,11 +36,13 @@
                  placeholder="Entrez le nom du projet"
                  [(ngModel)]="newProject.name"
                  required>
-          <!-- Optionnel: Afficher message d'erreur si invalide après soumission tentative -->
-          <!-- <div *ngIf="projectForm.submitted && projectNameInput.invalid" class="invalid-feedback">Nom requis</div> -->
+          <!-- Optionnel: Ajouter un message d'erreur si le champ est invalide après interaction -->
+          <!-- <div *ngIf="projectForm.controls['projectName']?.invalid && (projectForm.controls['projectName']?.dirty || projectForm.controls['projectName']?.touched)">
+               <small class="text-danger">Le nom du projet est requis.</small>
+             </div> -->
         </div>
 
-        <!-- Champ Type d'organigramme -->
+        <!-- Champ Type d'organigramme (MODIFIÉ) -->
         <div class="form-group">
           <label for="projectType">Choix du type d'organigramme</label>
           <select id="projectType"
@@ -53,57 +50,57 @@
                   class="form-control"
                   [(ngModel)]="newProject.type"
                   required>
-            <option value="" disabled selected>Type d'organigramme</option>
-            <option value="hierarchique">PG</option>
-            <option value="matriciel">IM</option>
-            <option value="plat">PG+IM</option>
-            <!-- Ajoutez d'autres types ici -->
+            <!-- Option par défaut, valeur vide pour la validation 'required' -->
+            <option [ngValue]="null" disabled selected>Sélectionnez un type...</option> <!-- ou [ngValue]="''" -->
+            <!-- Boucle sur les types chargés depuis l'API -->
           </select>
+           <!-- Optionnel: Message d'erreur -->
+          <!-- <div *ngIf="projectForm.controls['projectType']?.invalid && (projectForm.controls['projectType']?.dirty || projectForm.controls['projectType']?.touched)">
+               <small class="text-danger">Le type d'organigramme est requis.</small>
+           </div> -->
         </div>
 
-        <!-- Champ Date de création -->
+        <!-- Champ Date de création (inchangé) -->
         <div class="form-group">
             <label for="creationDate">Date de création</label>
             <div class="date-input-wrapper">
-                <!-- Utiliser input type="date" est sémantiquement mieux, mais peut différer visuellement -->
-                <!-- <input type="date" id="creationDate" name="creationDate" class="form-control" [(ngModel)]="newProject.creationDate" required> -->
-
-                <!-- Alternative avec input text pour correspondre au placeholder JJ/MM/AAAA + icône -->
-                <input type="text"
-                       id="creationDate"
-                       name="creationDate"
-                       class="form-control date-input"
-                       placeholder="JJ/MM/AAAA"
-                       [(ngModel)]="newProject.creationDate"
-                       required
-                       (focus)="showDatePicker = true"
-                       (blur)="hideDatePicker()"> <!-- Simple gestion pour l'exemple -->
-                <span class="calendar-icon"></span> <!-- Icône calendrier Unicode -->
-                <!-- Ici on pourrait ajouter un vrai date picker component si besoin -->
+                <input type="date" id="creationDate" name="creationDate" class="form-control" [(ngModel)]="newProject.creationDate" required>
             </div>
+             <!-- Optionnel: Message d'erreur -->
+            <!-- <div *ngIf="projectForm.controls['creationDate']?.invalid && (projectForm.controls['creationDate']?.dirty || projectForm.controls['creationDate']?.touched)">
+                 <small class="text-danger">La date de création est requise.</small>
+             </div> -->
         </div>
 
 
-        <!-- Champ Niveau de sécurité -->
+        <!-- Champ Niveau de sécurité (MODIFIÉ) -->
         <div class="form-group">
-          <label for="securityLevel">Niveau de sécurité</label>
+          <label for="securityLevel">Choix du niveau de sécurité</label>
           <select id="securityLevel"
                   name="securityLevel"
                   class="form-control"
                   [(ngModel)]="newProject.securityLevel"
                   required>
-            <option value="" disabled selected>Niveau de sécurité</option>
-            <option value="bas">/</option>
-            <option value="moyen">/</option>
-            <option value="eleve">/</option>
-            <!-- Ajoutez d'autres niveaux ici -->
+             <!-- Option par défaut, valeur vide pour la validation 'required' -->
+            <option [ngValue]="null" disabled selected>Sélectionnez un niveau...</option> <!-- ou [ngValue]="''" -->
+            <!-- Boucle sur les niveaux chargés depuis l'API -->
+            <!-- 'level.code' sera la valeur stockée (ex: 'Dual XP S2') -->
+            <!-- 'level.label' sera le texte affiché (ex: 'Niveau 4: Dual XP S2') -->
+            <option *ngFor="let level of securityLevels" [value]="level.code">
+              {{ level.label }}
+            </option>
           </select>
+           <!-- Optionnel: Message d'erreur -->
+          <!-- <div *ngIf="projectForm.controls['securityLevel']?.invalid && (projectForm.controls['securityLevel']?.dirty || projectForm.controls['securityLevel']?.touched)">
+               <small class="text-danger">Le niveau de sécurité est requis.</small>
+           </div> -->
         </div>
 
       </div> <!-- Fin form-grid -->
 
-      <!-- Bouton de soumission -->
+      <!-- Bouton d'envoi (Validation Angular Form) -->
       <div class="form-actions">
+        <!-- Le bouton est désactivé si le formulaire n'est pas valide OU si une soumission est en cours -->
         <button type="submit" class="btn submit-project-btn" [disabled]="!projectForm.form.valid || isSubmitting">
            {{ isSubmitting ? 'Création...' : 'Démarrer le projet' }}
         </button>
@@ -111,7 +108,7 @@
 
     </form> <!-- Fin du formulaire -->
 
-    <!-- Optionnel: bouton pour fermer explicitement -->
+
     <button class="close-modal-btn" (click)="closeModal()" title="Fermer">×</button>
 
   </div> <!-- Fin modal-content -->

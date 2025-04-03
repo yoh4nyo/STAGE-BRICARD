@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./config/db.js');
 const userRoutes = require('./routes/userRoutes'); 
+const projectOptionsRoutes = require('./routes/projectOptionsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use('/api', userRoutes);
+app.use('/api', projectOptionsRoutes);
 
 
 app.listen(PORT, () => {

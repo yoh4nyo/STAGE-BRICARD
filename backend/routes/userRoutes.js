@@ -8,7 +8,7 @@ const authenticateToken = require('../middleware/auth'); // <-- Importer notre m
 const router = express.Router();
 const saltRounds = 10; // Déplacé ici pour être réutilisé
 
-// === ROUTES PUBLIQUES (Pas besoin de token) ===
+// === ROUTES PUBLIQUES ===
 
 // Route POST /api/login (connexion)
 router.post('/login', (req, res) => {

@@ -10,10 +10,12 @@ import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './service/auth.interceptor';
+import { DashboardAdminProjectComponent } from './component/dashboard-admin-project/dashboard-admin-project.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    DashboardAdminProjectComponent,
   ],
   imports: [
     BrowserModule,

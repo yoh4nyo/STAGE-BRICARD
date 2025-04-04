@@ -4,17 +4,18 @@ import { Subscription } from 'rxjs';
 import { AuthService, User } from '../../service/auth.service';
 import { FormsModule, NgForm } from '@angular/forms'; // Import NgForm
 import { Router } from '@angular/router';
+
 // Assure-toi que toutes les interfaces nécessaires sont importées et CORRECTEMENT DEFINIES dans le service
 import {
   ProjectOptionsService,
   SecurityLevel,
   OrganigrammeType,
-  ProjectCreatePayload, // Pour l'étape 1 API call
+  ProjectCreatePayload,   // Interface pour l'API POST finale (inclut TOUT)
   ProjectCreationResponse,
-  ProjectDetailsPayload  // Pour l'étape 2 API call et le formulaire étape 2
+  ProjectDetailsPayload   // Interface pour les champs du formulaire Étape 2
 } from '../../service/project-options.service';
 
-// Interface pour les données du formulaire Étape 1
+// Interface pour les données du formulaire Étape 1 (inchangée)
 interface NewProjectData {
   name: string;
   type: string;
@@ -35,17 +36,17 @@ export class DashboardClientComponent implements OnInit, OnDestroy {
 
   // --- États ---
   isModalOpen: boolean = false;
-  isSubmitting: boolean = false;
-  currentStep: number = 1;
-  createdProjectId: number | null = null;
+  isSubmitting: boolean = false; // Unique flag pour les deux étapes
+  currentStep: number = 1;      // Étape actuelle (1 ou 2)
+  // createdProjectId: number | null = null; // N'est plus nécessaire ici
 
   // --- Données Formulaires ---
   // Étape 1: lié au formulaire initial
   newProject: NewProjectData = this.resetStep1Form();
 
   // Étape 2: lié au formulaire des questions spécifiques
-  // ---> CORRECTION TYPE ICI <---
-  projectDetails: ProjectDetailsPayload = this.resetStep2Form(); // Doit correspondre à l'interface des détails
+  // Utilise l'interface ProjectDetailsPayload pour typer le formulaire Étape 2
+  projectDetails: ProjectDetailsPayload = this.resetStep2Form();
 
   // Pour les dropdowns Étape 1
   securityLevels: SecurityLevel[] = [];
@@ -82,57 +83,38 @@ export class DashboardClientComponent implements OnInit, OnDestroy {
     };
   }
 
-  // ---> CORRECTION TYPE RETOUR ICI <---
   resetStep2Form(): ProjectDetailsPayload {
     // Initialise les champs attendus par ProjectDetailsPayload
+    // Assure-toi que cette interface est bien définie dans ton service
     return {
       logementDoors: null,
-      hasPrivateCellars: false, // Mettre une valeur par défaut explicite (boolean non nullable)
+      hasPrivateCellars: false, // Valeur par défaut explicite
       commonDoors: null,
-      extraCommonKeys: false, // Mettre une valeur par défaut explicite
+      extraCommonKeys: false, // Valeur par défaut explicite
       pgKeys: null,
       totalDoorsPG: null
-      // Assure-toi que ces clés correspondent à l'interface ProjectDetailsPayload
     };
   }
 
-  // --- Chargement Options Dropdown ---
+  // --- Chargement Options Dropdown (Inchangé) ---
   loadDropdownOptions(): void {
-    console.log("loadDropdownOptions: Début du chargement des options."); // Log de début
-
-    // Appel pour les niveaux de sécurité
+    console.log("loadDropdownOptions: Début du chargement des options.");
     this.projectOptionsService.getSecurityLevels().subscribe({
-        next: (data) => {
-            this.securityLevels = data;
-            console.log('Niveaux de sécurité chargés:', this.securityLevels); // Log les données reçues
-        },
-        error: (error) => {
-            console.error('Erreur lors du chargement des niveaux de sécurité:', error);
-            // TODO: Afficher un message d'erreur à l'utilisateur si le chargement échoue
-            // alert('Impossible de charger les niveaux de sécurité.');
-        }
+        next: (data) => { this.securityLevels = data; /* console.log('Niveaux chargés:', this.securityLevels); */ },
+        error: (error) => { console.error('Erreur chargement niveaux:', error); }
     });
-
-    // Appel pour les types d'organigramme
     this.projectOptionsService.getOrganigrammeTypes().subscribe({
-        next: (data) => {
-            this.organigrammeTypes = data;
-            console.log('Types d\'organigramme chargés:', this.organigrammeTypes); // Log les données reçues
-        },
-        error: (error) => {
-            console.error('Erreur lors du chargement des types d\'organigramme:', error);
-             // TODO: Afficher un message d'erreur à l'utilisateur si le chargement échoue
-            // alert('Impossible de charger les types d\'organigramme.');
-        }
+        next: (data) => { this.organigrammeTypes = data; /* console.log('Types chargés:', this.organigrammeTypes); */ },
+        error: (error) => { console.error('Erreur chargement types:', error); }
     });
   }
 
   // --- Actions Modale ---
   openModal(): void {
     this.newProject = this.resetStep1Form();
-    this.projectDetails = this.resetStep2Form(); // Appelle la fonction corrigée
-    this.currentStep = 1;
-    this.createdProjectId = null;
+    this.projectDetails = this.resetStep2Form(); // Réinitialise aussi l'étape 2
+    this.currentStep = 1;                   // Commence toujours à l'étape 1
+    // this.createdProjectId = null; // Plus besoin
     this.isModalOpen = true;
     this.isSubmitting = false;
     document.body.style.overflow = 'hidden';
@@ -141,97 +123,85 @@ export class DashboardClientComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.isModalOpen = false;
     document.body.style.overflow = 'auto';
-    this.currentStep = 1;
-    this.createdProjectId = null;
+    this.currentStep = 1; // Réinitialiser l'étape en fermant
+    // this.createdProjectId = null; // Plus besoin
   }
 
   // --- Soumissions Étapes ---
 
-  // Étape 1: Création initiale
+  // Étape 1 : Valider et passer à l'étape 2 (SANS appel API)
   submitStep1(form: NgForm): void {
-    console.log('Tentative de soumission Étape 1:', this.newProject);
+    console.log('Validation Étape 1:', this.newProject);
     if (form.invalid) {
         alert('Veuillez remplir tous les champs de l\'étape 1.');
+        // Marquer les champs comme touchés pour afficher les erreurs visuellement
         Object.keys(form.controls).forEach(key => { form.controls[key].markAsTouched(); });
         return;
     }
-    if (!this.userInfo?.id) {
-        alert("Erreur : Impossible de récupérer l'ID utilisateur.");
-        return;
-    }
-
-    this.isSubmitting = true;
-    // Utilise l'interface ProjectCreatePayload pour l'API call de création
-    const payload: ProjectCreatePayload = {
-        name: this.newProject.name,
-        type: this.newProject.type,
-        creationDate: this.newProject.creationDate,
-        securityLevel: this.newProject.securityLevel,
-        userId: this.userInfo.id
-    }; // Cet objet est correct et ne contient PAS logementDoors etc.
-
-    console.log("Frontend: Sending STEP 1 payload to backend:", payload);
-
-    this.projectOptionsService.createProject(payload).subscribe({
-        next: (response) => {
-            console.log('Étape 1 réussie ! Projet créé ID:', response.projectId);
-            this.createdProjectId = response.projectId;
-            this.currentStep = 2;
-            this.isSubmitting = false;
-        },
-        error: (error) => {
-            console.error('Erreur Étape 1:', error);
-            alert(`Erreur lors de la création du projet: ${error.error?.message || error.message}`);
-            this.isSubmitting = false;
-        }
-    });
+    // Simplement passer à l'étape suivante
+    this.currentStep = 2;
+    console.log('Passage à l\'étape 2. Données étape 1:', this.newProject);
   }
 
-  // Étape 2: Mise à jour des détails
+  // Étape 2 : Combiner, Valider et Créer le projet complet (AVEC appel API)
   submitStep2(form: NgForm): void {
-    console.log('Tentative de soumission Étape 2:', this.projectDetails);
+    console.log('Tentative de soumission Étape 2 (finale):', this.projectDetails);
 
-    if (form.invalid) { // Améliorer cette validation si besoin
+    // Validation du formulaire de l'étape 2
+    if (form.invalid) {
         alert('Veuillez remplir tous les champs requis pour cette étape.');
         Object.keys(form.controls).forEach(key => {
             if (form.controls[key]) { form.controls[key].markAsTouched(); }
         });
         return;
     }
-    if (!this.createdProjectId) {
-       alert("Erreur : ID du projet manquant.");
+    // Vérification cruciale de l'ID utilisateur
+    if (!this.userInfo?.id) {
+       alert("Erreur : ID utilisateur manquant. Impossible de créer le projet.");
        return;
     }
 
-    this.isSubmitting = true;
+    this.isSubmitting = true; // Début de la soumission finale
 
-    // Utilise l'interface ProjectDetailsPayload pour l'API call de mise à jour
-    // L'objet this.projectDetails est maintenant correctement typé
-    const detailsPayload: ProjectDetailsPayload = { ...this.projectDetails };
+    // --- Combinaison des données des deux étapes ---
+    const finalPayload: ProjectCreatePayload = {
+        // Données Étape 1 (stockées dans this.newProject)
+        name: this.newProject.name,
+        type: this.newProject.type,
+        creationDate: this.newProject.creationDate,
+        securityLevel: this.newProject.securityLevel,
+        userId: this.userInfo.id,
+        // Données Étape 2 (stockées dans this.projectDetails)
+        ...this.projectDetails // Utilise l'opérateur spread pour copier les propriétés
+    };
 
-    console.log("Frontend: Sending STEP 2 payload to backend:", detailsPayload);
+    console.log("Frontend: Sending combined payload to backend (POST /projects):", finalPayload);
 
-    // Appelle le service avec l'objet correctement typé
-    this.projectOptionsService.updateProjectDetails(this.createdProjectId, detailsPayload).subscribe({
-        next: (response) => {
-            console.log('Étape 2 réussie ! Détails mis à jour.');
+    // --- Appel UNIQUE à l'API pour créer le projet complet ---
+    this.projectOptionsService.createProject(finalPayload).subscribe({
+        next: (response: ProjectCreationResponse) => {
+            console.log('Projet complet créé avec succès! Response:', response);
             this.isSubmitting = false;
-            this.closeModal();
-            alert('Configuration du projet terminée ! Vous allez être redirigé.');
-            this.router.navigate(['/creation-organigramme', this.createdProjectId]); // Adapte la route
+            this.closeModal(); // Ferme la modale après succès
+            alert(`Projet "${finalPayload.name}" créé avec succès !`);
+
+            // Navigue vers l'éditeur de matrice, en utilisant l'ID retourné par le backend
+            this.router.navigate(['/creation-organigramme', response.projectId]); // Adapte la route si nécessaire
         },
         error: (error) => {
-            console.error('Erreur Étape 2:', error);
-            alert(`Erreur lors de la sauvegarde des détails: ${error.error?.message || error.message}`);
-            this.isSubmitting = false;
+            console.error('Erreur lors de la création complète du projet:', error);
+            alert(`Erreur lors de la création du projet: ${error.error?.message || error.message}`);
+            this.isSubmitting = false; // Réactive le bouton même en cas d'erreur
         }
     });
-  }
+  } // Fin submitStep2
 
   // --- Navigation Interne ---
+  // Permet de revenir à l'étape 1 depuis l'étape 2
   goToStep1(): void {
-    if (!this.isSubmitting) {
+    if (!this.isSubmitting) { // Empêche de revenir pendant une soumission
         this.currentStep = 1;
+        console.log("Retour à l'étape 1");
     }
   }
 
@@ -241,7 +211,7 @@ export class DashboardClientComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  // Méthode pour date picker (pas nécessaire pour ce problème, inchangée)
+  // Méthode pour date picker (inchangée)
   hideDatePicker(): void { /* ... */ }
 
-} // Fin de la classe
+} // Fin de la classe DashboardClientComponent

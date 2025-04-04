@@ -61,6 +61,7 @@ router.get('/security-levels', (req, res) => {
     });
 });
 
+
 // --- route qui permet de récupérer les types d'organigramme ---
 router.get('/organigramme-types', (req, res) => {
     console.log("Backend Route: Organigramme Types requested"); // Log 1
@@ -68,7 +69,7 @@ router.get('/organigramme-types', (req, res) => {
     const organigrammeTypes = [
         { code: 'pg', label: 'PG (Passe générale)' },
         { code: 'im', label: 'IM (Immeuble)' },
-        { code: 'pg + im', label: 'PG + IM (Passe générale + Immeuble)' },
+        { code: 'pg_im', label: 'PG + IM (Passe générale + Immeuble)' },
     ];
 
     console.log("Backend Route: Organigramme Types sent to API:", organigrammeTypes); // Log 2

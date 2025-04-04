@@ -1,90 +1,92 @@
+/* --- Variables Globales --- */
 :host {
   --brand-orange: #ff6701;
   --brand-white: #ffffff;
+  --brand-success: #0cbc87; 
+  --brand-grey-light: #e0e0e0;
+  --brand-grey-medium: #ababab;
+  --brand-grey-dark: #555;
+  --brand-danger: #dc3545;
+  --brand-text-dark: #333;
+  --brand-secondary-action: #6c757d; 
 }
 
-/* Conteneur principal de la page */
+/* --- Styles Page Dashboard --- */
 .client-dashboard-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--brand-white);
-  font-family: Libre Franklin, sans-serif;
+  font-family: 'Libre Franklin', sans-serif; 
 }
 
-/* En-tête */
 .dashboard-header {
   background-color: var(--brand-orange);
   color: var(--brand-white);
   padding: 15px 25px;
   display: flex;
-  justify-content: space-between; 
-  align-items: center; 
-  height: 60px; 
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-title {
-  font-size: 1.4em; 
+  font-size: 1.4em;
   font-weight: 700;
 }
 
 .header-icon {
-  font-size: 2em; 
+  font-size: 1.8em; 
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
 .header-icon:hover {
-  opacity: 0.8; 
+  opacity: 0.8;
 }
 
-
-/* Contenu Principal */
 .dashboard-content {
-  flex-grow: 1; 
+  flex-grow: 1;
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  padding: 20px;
+  justify-content: center;
+  align-items: flex-start; 
+  padding: 40px 20px; 
 }
 
-
-/* Bouton "Créer un projet" */
 .create-project-btn {
   background-color: var(--brand-orange);
   color: var(--brand-white);
   border: none;
-  padding: 12px 30px; 
+  padding: 12px 30px;
   font-size: 1.1em;
   font-weight: bold;
-  border-radius: 4px; 
+  border-radius: 6px; 
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-.create-project-btn:hover {
-  background-color: #e06a04;
+.create-project-btn:hover:not(:disabled) {
+  background-color: #e05a03; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.create-project-btn:active {
-  background-color: #c95f03; 
-  color: white;
+.create-project-btn:active:not(:disabled) {
+  background-color: #c95f03;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-
-/* --- Styles pour la Modale --- */
+/* --- Styles Modale Généraux --- */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw; 
-  height: 100vh; 
-  background-color: rgba(0, 0, 0, 0.6); 
-  z-index: 1040; 
-  cursor: pointer; 
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65); 
+  z-index: 1040;
+  cursor: pointer;
 }
 
 .modal-container {
@@ -92,35 +94,191 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1050; 
-  width: 90%; 
-  max-width: 700px; 
+  z-index: 1050;
+  width: 90%;
+  max-width: 750px;
 }
 
 .modal-content {
   background-color: var(--brand-white);
-  border-radius: 8px;
-  padding: 30px 40px; 
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid #ccc; 
-  position: relative; 
+  border-radius: 10px; 
+  padding: 25px 40px 40px 40px; 
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
+.close-modal-btn {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2.8em;
+  font-weight: 300;
+  color: var(--brand-grey-medium);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  color: var(--brand-grey-dark);
+  transform: scale(1.1);
+}
+
+/* --- Styles Indicateur d'Étapes (Stepper) --- */
+.modal-stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 35px; 
+  width: 60%;
+  min-width: 280px; 
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.step-number {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--brand-grey-light);
+  background-color: var(--brand-white);
+  color: var(--brand-grey-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95em;
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.3s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.step-label {
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: var(--brand-grey-medium);
+  font-weight: 500;
+  transition: color 0.4s ease;
+  white-space: nowrap;
+}
+
+.step-line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: var(--brand-grey-light);
+  margin-top: 17px;
+  margin-left: -8px;
+  margin-right: -8px;
+  transition: background-color 0.4s ease;
+  z-index: 1;
+}
+
+/* États du Stepper */
+.step-item.inactive .step-number {
+  border-color: var(--brand-grey-light);
+  color: var(--brand-grey-medium);
+  background-color: var(--brand-white);
+}
+.step-item.inactive .step-label {
+  color: var(--brand-grey-medium);
+}
+
+.step-item.active .step-number {
+  background-color: var(--brand-orange);
+  border-color: var(--brand-orange);
+  color: var(--brand-white);
+  box-shadow: 0 0 10px rgba(255, 103, 1, 0.5);
+}
+.step-item.active .step-label {
+  color: var(--brand-orange);
+  font-weight: 700;
+}
+
+.step-item.completed .step-number {
+  background-color: var(--brand-success);
+  border-color: var(--brand-success);
+  color: var(--brand-white);
+  font-size: 0;
+}
+.step-item.completed .step-number::before {
+    content: '\2713'; 
+    font-size: 1.2em; 
+    line-height: 30px; 
+    position: absolute;
+    color: var(--brand-white);
+    font-weight: bold;
+}
+
+.step-item.completed .step-label {
+  color: var(--brand-grey-dark); 
+}
+
+.step-line.completed {
+   background-color: var(--brand-success);
+}
+
+/* --- Styles Formulaire dans Modale --- */
 .modal-title {
   text-align: center;
-  font-size: 1.8em;
+  font-size: 1.7em; 
   font-weight: 700;
-  color: #333;
-  margin-bottom: 30px;
+  color: var(--brand-text-dark);
+  margin-top: 0; 
+  margin-bottom: 35px; 
 }
 
-/* Grille pour les champs du formulaire */
+/* Titre pour les sections de l'étape 2 */
+.step2-section-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--brand-orange);
+    margin-top: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--brand-grey-light);
+    grid-column: 1 / -1; 
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px 30px;
-  margin-bottom: 30px;
+  gap: 25px 30px; 
+  margin-bottom: 35px; 
 }
+
+/* Spécifique pour la grille de l'étape 2 si besoin d'une seule colonne */
+.step2-grid {
+  grid-template-columns: 1fr; 
+  gap: 20px;
+}
+
+/* Pour que les titres de section fonctionnent bien dans la grille */
+.step2-grid > h4 {
+    grid-column: 1 / -1;
+}
+
+/* Si une question de l'étape 2 doit être sur 2 colonnes (rare ici) */
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
 
 .form-group {
   display: flex;
@@ -129,49 +287,150 @@
 
 .form-group label {
   margin-bottom: 8px;
-  font-weight: bold;
-  color: #555;
+  font-weight: 600; 
+  color: var(--brand-grey-dark);
   font-size: 0.95em;
 }
 
-/* Style des inputs et selects */
+/* Input, Select, Textarea */
 .form-control {
   width: 100%;
-  padding: 10px 12px; 
-  border: 1px solid #ccc; 
+  padding: 10px 14px;
+  border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1em;
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #fdfdfd; 
 }
 
 .form-control:focus {
   border-color: var(--brand-orange);
-  outline: none; 
-  box-shadow: 0 0 0 2px rgba(242, 116, 5, 0.2); 
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 103, 1, 0.15); 
 }
 
 .form-control::placeholder {
-  color: #aaa;
+  color: var(--brand-grey-medium);
   opacity: 1;
 }
 
-/* Style pour les selects pour afficher la flèche */
+/* Style pour la flèche des selects */
 select.form-control {
-  appearance: none; 
-  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23aaa" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%236c757d" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 14px center;
   background-size: 16px 12px;
-  padding-right: 40px; 
+  padding-right: 40px;
 }
 
-/* Actions du formulaire (bouton Démarrer) */
+select[multiple] { 
+    appearance: auto;
+    background-image: none;
+}
+
+/* Spécifique pour l'input date (si besoin) */
+.date-input-wrapper input[type="date"] {
+    position: relative;
+}
+
+/* Style potentiel pour l'icône calendrier (navigateur dépendant) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.9;
+}
+
+/* Style pour les groupes de boutons radio */
+.radio-group {
+  padding-top: 5px; 
+}
+.form-check {
+  margin-bottom: 5px;
+}
+.form-check-inline {
+   display: inline-flex; 
+   align-items: center;
+   margin-right: 20px; 
+   margin-bottom: 5px;
+}
+
+.form-check-input {
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 8px;
+  margin-top: 0; 
+  cursor: pointer;
+}
+
+.form-check-input[type="radio"] {
+    border-radius: 50%;
+}
+
+.form-check-input:checked {
+    background-color: var(--brand-orange);
+    border-color: var(--brand-orange);
+}
+
+.form-check-input:focus {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 3px rgba(255, 103, 1, 0.15);
+    outline: none;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+  cursor: pointer;
+  font-weight: normal; 
+  color: var(--brand-text-dark);
+}
+
+
+/* Messages d'erreur */
+.text-danger {
+  color: var(--brand-danger) !important; 
+}
+.mt-1 {
+  margin-top: 0.35rem !important;
+}
+.text-danger small {
+    font-size: 0.85em;
+}
+
+.form-control.ng-invalid.ng-touched,
+.form-control.ng-invalid.ng-dirty {
+    border-color: var(--brand-danger);
+}
+select.ng-invalid.ng-touched,
+select.ng-invalid.ng-dirty {
+     border-color: var(--brand-danger);
+}
+.form-check-input.ng-invalid.ng-touched, 
+.form-check-input.ng-invalid.ng-dirty {
+     border-color: var(--brand-danger);
+}
+
+
+/* Actions du formulaire (Boutons) */
 .form-actions {
   text-align: center;
-  margin-top: 10px; 
+  margin-top: 15px; 
+  padding-top: 20px; 
+  border-top: 1px solid var(--brand-grey-light); 
 }
 
+/* Style spécifique pour les boutons de l'étape 2 */
+.step2-actions {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+}
+
+/* Bouton principal (Continuer / Terminer) */
 .submit-project-btn {
   background-color: var(--brand-orange);
   color: var(--brand-white);
@@ -181,36 +440,42 @@ select.form-control {
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .submit-project-btn:hover:not(:disabled) {
-  background-color: #e06a04;
+  background-color: #e05a03;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .submit-project-btn:disabled {
-    background-color: #fdab67; 
+    background-color: #fdac7a; 
     cursor: not-allowed;
     box-shadow: none;
+    opacity: 0.7;
 }
 
-/* Bouton de fermeture (croix) */
-.close-modal-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 2.5em; 
-  color: #aaa;
-  cursor: pointer;
-  line-height: 1; 
-  padding: 0;
-  transition: color 0.2s ease;
+/* Bouton Secondaire (Retour Étape 1) */
+.btn-secondary {
+    background-color: var(--brand-white);
+    color: var(--brand-secondary-action);
+    border: 1px solid var(--brand-secondary-action);
+    padding: 11px 25px; 
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.close-modal-btn:hover {
-  color: #666;
+.btn-secondary:hover:not(:disabled) {
+    background-color: #f8f9fa; 
+    color: #5a6268;
+    border-color: #5a6268;
+}
+
+.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

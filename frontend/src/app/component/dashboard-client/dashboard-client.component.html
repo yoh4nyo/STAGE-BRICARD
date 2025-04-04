@@ -1,17 +1,18 @@
 <div class="client-dashboard-page">
-  <!-- En-tête (inchangé) -->
+  <!-- En-tête -->
   <header class="dashboard-header">
     <span class="header-title">Mes projets</span>
     <span class="header-icon logout-icon" (click)="logout()" title="Déconnexion" role="button" tabindex="0">
-      <i class="bi bi-box-arrow-right"></i>
+      <i class="bi bi-box-arrow-right"></i> <!-- Assure-toi d'avoir Bootstrap Icons si tu utilises cette classe -->
     </span>
   </header>
 
-  <!-- Contenu principal (inchangé) -->
+  <!-- Contenu principal -->
   <main class="dashboard-content">
     <button class="btn create-project-btn" (click)="openModal()">
       CRÉER UN PROJET
     </button>
+    <!-- Ici, tu afficherais la liste des projets existants -->
   </main>
 </div>
 
@@ -22,9 +23,21 @@
 <div class="modal-container" *ngIf="isModalOpen">
   <div class="modal-content">
 
-    <!-- Affiche le contenu de l'Étape 1 -->
+    <!-- ==================== ÉTAPE 1 ==================== -->
     <div *ngIf="currentStep === 1">
-      <h2 class="modal-title">Nouveau projet - Étape 1/2 : Informations générales</h2>
+      <div class="modal-stepper">
+        <div class="step-item active">
+          <div class="step-number">1</div>
+          <div class="step-label">Infos</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item inactive">
+          <div class="step-number">2</div>
+           <div class="step-label">Détails</div>
+        </div>
+      </div>
+
+      <h2 class="modal-title">Nouveau projet : Informations générales</h2>
       <form (ngSubmit)="submitStep1(projectFormStep1)" #projectFormStep1="ngForm" novalidate>
         <div class="form-grid">
 
@@ -97,110 +110,184 @@
              </div>
           </div>
 
-        </div> <!-- Fin form-grid Étape 1 -->
+        </div>
 
         <!-- Bouton d'envoi Étape 1 -->
         <div class="form-actions">
           <button type="submit" class="btn submit-project-btn" [disabled]="projectFormStep1.invalid || isSubmitting">
-             {{ isSubmitting ? 'Création...' : 'Continuer vers Étape 2' }}
+             {{ isSubmitting ? 'Chargement...' : 'Continuer vers Étape 2' }}
           </button>
         </div>
 
-      </form> <!-- Fin Formulaire Étape 1 -->
-    </div> <!-- Fin *ngIf currentStep === 1 -->
+      </form> 
+    </div>
 
 
-    <!-- Affiche le contenu de l'Étape 2 -->
+    <!-- ==================== ÉTAPE 2 ==================== -->
     <div *ngIf="currentStep === 2">
-        <h2 class="modal-title">Nouveau projet - Étape 2/2 : Détails</h2>
-        <form (ngSubmit)="submitStep2(projectFormStep2)" #projectFormStep2="ngForm" novalidate>
-            <div class="form-grid"> <!-- Utilisation possible d'une grille aussi -->
+       <div class="modal-stepper">
+        <div class="step-item completed"> 
+          <div class="step-number">1</div>
+          <div class="step-label">Infos</div>
+        </div>
+        <div class="step-line completed"></div>
+        <div class="step-item active"> 
+          <div class="step-number">2</div>
+          <div class="step-label">Détails</div>
+        </div>
+      </div>
 
-                <!-- Questions conditionnelles basées sur newProject.type (qui a été défini à l'étape 1) -->
-
-                <!-- Questions pour IM ou IM/PG -->
-                <ng-container *ngIf="newProject.type === 'im' || newProject.type === 'pg_im'">
-                    <h4 class="step2-section-title">Configuration Immeuble (IM)</h4>
-                    <div class="form-group">
-                        <label for="logementDoors">Nombres de portes logements/bureaux :</label>
-                        <input type="number" id="logementDoors" name="logementDoors" class="form-control" [(ngModel)]="projectDetails.logementDoors" min="0" required #logementDoorsInput="ngModel">
-                        <div *ngIf="logementDoorsInput.invalid && (logementDoorsInput.dirty || logementDoorsInput.touched)" class="text-danger mt-1">
-                            <small *ngIf="logementDoorsInput.errors?.['required']">Nombre requis.</small>
-                            <small *ngIf="logementDoorsInput.errors?.['min']">Doit être >= 0.</small>
-                        </div>
-                    </div>
-                     <div class="form-group"> <!-- Uniquement si logement? Adapter la condition si besoin -->
-                        <label>Caves privées par logement ?</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="hasPrivateCellars" id="cellarsYes" [value]="true" [(ngModel)]="projectDetails.hasPrivateCellars" required>
-                            <label class="form-check-label" for="cellarsYes">Oui</label>
-                        </div>
-                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="hasPrivateCellars" id="cellarsNo" [value]="false" [(ngModel)]="projectDetails.hasPrivateCellars" required>
-                            <label class="form-check-label" for="cellarsNo">Non</label>
-                        </div>
-                         <!-- Validation pour les boutons radio est moins directe, mais le required aide -->
-                    </div>
-                    <div class="form-group">
-                        <label for="commonDoors">Nombres de portes parties communes :</label>
-                        <input type="number" id="commonDoors" name="commonDoors" class="form-control" [(ngModel)]="projectDetails.commonDoors" min="0" required #commonDoorsInput="ngModel">
-                        <div *ngIf="commonDoorsInput.invalid && (commonDoorsInput.dirty || commonDoorsInput.touched)" class="text-danger mt-1">
-                           <small *ngIf="commonDoorsInput.errors?.['required']">Nombre requis.</small>
-                           <small *ngIf="commonDoorsInput.errors?.['min']">Doit être >= 0.</small>
-                        </div>
-                    </div>
-                     <div class="form-group">
-                        <label>Clés additionnelles pour parties communes ?</label>
-                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="extraCommonKeys" id="extraKeysYes" [value]="true" [(ngModel)]="projectDetails.extraCommonKeys" required>
-                            <label class="form-check-label" for="extraKeysYes">Oui</label>
-                        </div>
-                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="extraCommonKeys" id="extraKeysNo" [value]="false" [(ngModel)]="projectDetails.extraCommonKeys" required>
-                            <label class="form-check-label" for="extraKeysNo">Non</label>
-                        </div>
-                    </div>
-                </ng-container>
-
-                 <!-- Questions pour PG ou IM/PG -->
-                <ng-container *ngIf="newProject.type === 'pg' || newProject.type === 'pg_im'">
-                     <h4 class="step2-section-title">Configuration Passe Général (PG)</h4>
-                     <!-- Uniquement pour PG pur ? -->
-                     <div class="form-group" *ngIf="newProject.type === 'pg'">
-                        <label for="totalDoorsPG">Nb total de portes à équiper (PG) :</label>
-                        <input type="number" id="totalDoorsPG" name="totalDoorsPG" class="form-control" [(ngModel)]="projectDetails.totalDoorsPG" min="0" required #totalDoorsPGInput="ngModel">
-                        <div *ngIf="totalDoorsPGInput.invalid && (totalDoorsPGInput.dirty || totalDoorsPGInput.touched)" class="text-danger mt-1">
-                           <small *ngIf="totalDoorsPGInput.errors?.['required']">Nombre requis.</small>
-                           <small *ngIf="totalDoorsPGInput.errors?.['min']">Doit être >= 0.</small>
-                        </div>
-                     </div>
-                     <div class="form-group">
-                        <label for="pgKeys">Nb clés Passe Général :</label>
-                        <input type="number" id="pgKeys" name="pgKeys" class="form-control" [(ngModel)]="projectDetails.pgKeys" min="1" required #pgKeysInput="ngModel">
-                         <div *ngIf="pgKeysInput.invalid && (pgKeysInput.dirty || pgKeysInput.touched)" class="text-danger mt-1">
-                           <small *ngIf="pgKeysInput.errors?.['required']">Nombre requis.</small>
-                           <small *ngIf="pgKeysInput.errors?.['min']">Doit être >= 1.</small>
-                        </div>
-                     </div>
-                </ng-container>
-
-            </div> <!-- Fin form-grid Étape 2 -->
-
-            <!-- Boutons d'action Étape 2 -->
-            <div class="form-actions">
-                 <button type="button" class="btn btn-secondary mr-2" (click)="goToStep1()" [disabled]="isSubmitting">
-                     Retour Étape 1
-                 </button>
-                 <button type="submit" class="btn submit-project-btn" [disabled]="projectFormStep2.invalid || isSubmitting">
-                     {{ isSubmitting ? 'Sauvegarde...' : 'Terminer et aller à la matrice' }}
-                 </button>
+      <h3 class="step-content-title modal-title">Détails du projet ({{ newProject.type | uppercase }})</h3>
+      <form (ngSubmit)="submitStep2(projectFormStep2)" #projectFormStep2="ngForm" novalidate>
+        <div class="form-grid step2-grid">
+          <!-- ==================== Questions pour IM SEULEMENT ==================== -->
+          <ng-container *ngIf="newProject.type === 'im'">
+            <h4 class="step2-section-title">Configuration Immeuble (IM)</h4>
+            <!-- Nb portes logements/bureaux -->
+            <div class="form-group">
+              <label for="logementDoorsIM">Combien de portes de logements/bureaux ?</label>
+              <input type="number" id="logementDoorsIM" name="logementDoorsIM" class="form-control" [(ngModel)]="projectDetails.logementDoors" min="0" required #logementDoorsInputIM="ngModel">
+                <div *ngIf="logementDoorsInputIM.invalid && (logementDoorsInputIM.dirty || logementDoorsInputIM.touched)" class="text-danger mt-1">
+                  <small *ngIf="logementDoorsInputIM.errors?.['required']">Nombre requis.</small>
+                  <small *ngIf="logementDoorsInputIM.errors?.['min']">Doit être positif ou nul.</small>
+                </div>
             </div>
+            <!-- Caves privées -->
+            <div class="form-group">
+              <label>Caves privées pour chaque logement ?</label>
+              <div class="radio-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="hasPrivateCellarsIM" id="cellarsYesIM" [value]="true" [(ngModel)]="projectDetails.hasPrivateCellars" required>
+                  <label class="form-check-label" for="cellarsYesIM">Oui</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="hasPrivateCellarsIM" id="cellarsNoIM" [value]="false" [(ngModel)]="projectDetails.hasPrivateCellars" required>
+                  <label class="form-check-label" for="cellarsNoIM">Non</label>
+                </div>
+              </div>
+            </div>
+            <!-- Nb portes communes -->
+            <div class="form-group">
+                <label for="commonDoorsIM">Combien de portes communes ?</label>
+                <input type="number" id="commonDoorsIM" name="commonDoorsIM" class="form-control" [(ngModel)]="projectDetails.commonDoors" min="0" required #commonDoorsInputIM="ngModel">
+                <div *ngIf="commonDoorsInputIM.invalid && (commonDoorsInputIM.dirty || commonDoorsInputIM.touched)" class="text-danger mt-1">
+                  <small *ngIf="commonDoorsInputIM.errors?.['required']">Nombre requis.</small>
+                  <small *ngIf="commonDoorsInputIM.errors?.['min']">Doit être positif ou nul.</small>
+                </div>
+            </div>
+            <!-- Clés additionnelles communes -->
+            <div class="form-group">
+              <label>Clés additionnelles pour parties communes ?</label>
+              <div class="radio-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="extraCommonKeysIM" id="extraKeysYesIM" [value]="true" [(ngModel)]="projectDetails.extraCommonKeys" required>
+                  <label class="form-check-label" for="extraKeysYesIM">Oui</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="extraCommonKeysIM" id="extraKeysNoIM" [value]="false" [(ngModel)]="projectDetails.extraCommonKeys" required>
+                  <label class="form-check-label" for="extraKeysNoIM">Non</label>
+                </div>
+              </div>
+            </div>
+          </ng-container>
 
-        </form> <!-- Fin Formulaire Étape 2 -->
-    </div> <!-- Fin *ngIf currentStep === 2 -->
+          <!-- ==================== Questions pour PG SEULEMENT ==================== -->
+          <ng-container *ngIf="newProject.type === 'pg'">
+            <h4 class="step2-section-title">Configuration Passe Général (PG)</h4>
+            <!-- Nb total portes PG -->
+            <div class="form-group">
+              <label for="totalDoorsPG">Combien de portes au total ?</label>
+              <input type="number" id="totalDoorsPG" name="totalDoorsPG" class="form-control" [(ngModel)]="projectDetails.totalDoorsPG" min="0" required #totalDoorsPGInput="ngModel">
+              <div *ngIf="totalDoorsPGInput.invalid && (totalDoorsPGInput.dirty || totalDoorsPGInput.touched)" class="text-danger mt-1">
+                <small *ngIf="totalDoorsPGInput.errors?.['required']">Nombre requis.</small>
+                <small *ngIf="totalDoorsPGInput.errors?.['min']">Doit être positif ou nul.</small>
+              </div>
+            </div>
+            <!-- Nb Clés PG -->
+            <div class="form-group">
+              <label for="pgKeysPG">Combien de clés Passe Général ?</label>
+              <input type="number" id="pgKeysPG" name="pgKeysPG" class="form-control" [(ngModel)]="projectDetails.pgKeys" min="1" required #pgKeysInputPG="ngModel">
+              <div *ngIf="pgKeysInputPG.invalid && (pgKeysInputPG.dirty || pgKeysInputPG.touched)" class="text-danger mt-1">
+                <small *ngIf="pgKeysInputPG.errors?.['required']">Nombre requis.</small>
+                <small *ngIf="pgKeysInputPG.errors?.['min']">Minimum 1 clé.</small>
+              </div>
+            </div>
+          </ng-container>
 
-    <!-- Bouton Fermer (toujours visible) -->
+          <!-- ==================== Questions pour PG + IM ==================== -->
+          <ng-container *ngIf="newProject.type === 'pg_im'">
+            <h4 class="step2-section-title">Configuration Passe Général + Immeuble</h4>
+            <!-- Réutilisation des questions IM -->
+            <div class="form-group">
+              <label for="logementDoorsPGIM">Combien de portes de logements/bureaux ?</label>
+              <input type="number" id="logementDoorsPGIM" name="logementDoorsPGIM" class="form-control" [(ngModel)]="projectDetails.logementDoors" min="0" required #logementDoorsInputPGIM="ngModel">
+                <div *ngIf="logementDoorsInputPGIM.invalid && (logementDoorsInputPGIM.dirty || logementDoorsInputPGIM.touched)" class="text-danger mt-1">
+                    <small *ngIf="logementDoorsInputPGIM.errors?.['required']">Nombre requis.</small>
+                    <small *ngIf="logementDoorsInputPGIM.errors?.['min']">Doit être positif ou nul.</small>
+                </div>
+            </div>
+            <div class="form-group">
+              <label>Caves privées pour chaque logement ?</label>
+              <div class="radio-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="hasPrivateCellarsPGIM" id="cellarsYesPGIM" [value]="true" [(ngModel)]="projectDetails.hasPrivateCellars" required>
+                  <label class="form-check-label" for="cellarsYesPGIM">Oui</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="hasPrivateCellarsPGIM" id="cellarsNoPGIM" [value]="false" [(ngModel)]="projectDetails.hasPrivateCellars" required>
+                  <label class="form-check-label" for="cellarsNoPGIM">Non</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+                <label for="commonDoorsPGIM">Combien de portes communes ?</label>
+                <input type="number" id="commonDoorsPGIM" name="commonDoorsPGIM" class="form-control" [(ngModel)]="projectDetails.commonDoors" min="0" required #commonDoorsInputPGIM="ngModel">
+                <div *ngIf="commonDoorsInputPGIM.invalid && (commonDoorsInputPGIM.dirty || commonDoorsInputPGIM.touched)" class="text-danger mt-1">
+                     <small *ngIf="commonDoorsInputPGIM.errors?.['required']">Nombre requis.</small>
+                     <small *ngIf="commonDoorsInputPGIM.errors?.['min']">Doit être positif ou nul.</small>
+                </div>
+            </div>
+            <div class="form-group">
+              <label>Clés additionnelles pour parties communes ?</label>
+              <div class="radio-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="extraCommonKeysPGIM" id="extraKeysYesPGIM" [value]="true" [(ngModel)]="projectDetails.extraCommonKeys" required>
+                  <label class="form-check-label" for="extraKeysYesPGIM">Oui</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="extraCommonKeysPGIM" id="extraKeysNoPGIM" [value]="false" [(ngModel)]="projectDetails.extraCommonKeys" required>
+                  <label class="form-check-label" for="extraKeysNoPGIM">Non</label>
+                </div>
+              </div>
+            </div>
+            <!-- Question spécifique PG -->
+            <div class="form-group">
+              <label for="pgKeysPGIM">Combien de clés Passe Général ?</label>
+              <input type="number" id="pgKeysPGIM" name="pgKeysPGIM" class="form-control" [(ngModel)]="projectDetails.pgKeys" min="1" required #pgKeysInputPGIM="ngModel">
+              <div *ngIf="pgKeysInputPGIM.invalid && (pgKeysInputPGIM.dirty || pgKeysInputPGIM.touched)" class="text-danger mt-1">
+                  <small *ngIf="pgKeysInputPGIM.errors?.['required']">Nombre requis.</small>
+                  <small *ngIf="pgKeysInputPGIM.errors?.['min']">Minimum 1 clé.</small>
+              </div>
+            </div>
+          </ng-container>
+
+        </div> <!-- Fin form-grid Étape 2 -->
+
+        <!-- Boutons Actions Étape 2 -->
+        <div class="form-actions step2-actions">
+          <button type="button" class="btn btn-secondary" (click)="goToStep1()" [disabled]="isSubmitting">
+            Retour Étape 1
+          </button>
+          <button type="submit" class="btn submit-project-btn" [disabled]="projectFormStep2.invalid || isSubmitting">
+            {{ isSubmitting ? 'Sauvegarde...' : 'Terminer et créer la matrice' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+
     <button class="close-modal-btn" (click)="closeModal()" title="Fermer" [disabled]="isSubmitting">×</button>
 
-  </div> <!-- Fin modal-content -->
-</div> <!-- Fin modal-container -->
+  </div>
+</div>

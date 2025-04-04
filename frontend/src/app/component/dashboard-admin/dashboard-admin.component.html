@@ -1,168 +1,113 @@
+<!-- Navbar (inchangée) -->
+<nav class="admin-navbar">
+  <div class="navbar-brand">
+    Panneau Admin
+  </div>
+  <div class="navbar-links">
+    <a class="nav-link active">Utilisateurs</a>
+    <a class="nav-link disabled" title="Fonctionnalité à venir">Projets</a>
+  </div>
+  <div class="navbar-actions">
+    <span class="logout-btn" (click)="logout()" title="Déconnexion" role="button" tabindex="0">
+      <i class="bi bi-box-arrow-right"></i>
+    </span>
+  </div>
+</nav>
+
+<!-- Conteneur principal -->
 <div class="admin-dashboard-container">
 
-  <!-- ==================== NOUVELLE NAVBAR ==================== -->
-  <nav class="admin-navbar">
-    <div class="navbar-brand">
-      Panneau Admin
-    </div>
-    <div class="navbar-links">
-      <!-- Lien actif pour la page actuelle -->
-      <a class="nav-link active">Utilisateurs</a>
-      <!-- Placeholder pour lien futur -->
-      <a class="nav-link disabled" title="Fonctionnalité à venir">Projets</a>
-    </div>
-    <div class="navbar-actions">
-       <!-- Bouton Déconnexion déplacé ici -->
-       <button class="btn btn-outline-secondary btn-sm logout-btn" (click)="logout()">
-         <i class="bi bi-box-arrow-right"></i> Déconnexion
-       </button>
-    </div>
-  </nav>
-  <!-- ==================== FIN NAVBAR ==================== -->
-
-
   <header class="dashboard-header">
-    <!-- Titre ajusté pour refléter le contenu principal de cette page -->
     <h2>Gestion des Utilisateurs</h2>
-    <!-- Bouton Ajouter Utilisateur (inchangé) -->
-    <button class="btn btn-success btn-add-user" (click)="openUserModal('add')" *ngIf="!isLoading && !errorMessage">
+    <button class="btn btn-success btn-add-user" (click)="openUserModal('add')" *ngIf="!isLoading">
         <i class="bi bi-plus-circle-fill"></i> Ajouter un utilisateur
     </button>
   </header>
 
-  <!-- Indicateur de chargement (inchangé) -->
   <div *ngIf="isLoading" class="loading-indicator">
     <div class="spinner"></div>
     <p>Chargement des utilisateurs...</p>
   </div>
 
-  <!-- Affichage de l'erreur (inchangé) -->
-  <div *ngIf="errorMessage && !isLoading" class="error-message">
-    <p><i class="bi bi-exclamation-triangle-fill"></i> <strong>Erreur :</strong> {{ errorMessage }}</p>
-    <button class="btn btn-secondary btn-sm" (click)="loadUsers()">
-        <i class="bi bi-arrow-clockwise"></i> Réessayer
-    </button>
-  </div>
-
-  <!-- Section principale (Utilisateurs) (inchangé sauf suppression footer) -->
-  <div *ngIf="!isLoading && !errorMessage">
+  <div *ngIf="!isLoading">
 
     <div *ngIf="users !== null" class="users-section">
       <h3 *ngIf="users.length > 0">Liste des Utilisateurs</h3>
       <div *ngIf="users.length > 0; else noUsers" class="table-responsive-wrapper">
         <table class="users-table">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Rôle</th>
-              <th>Statut</th>
-              <th class="actions-header">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-             <!-- Empêcher les actions sur soi-même (exemple) -->
-             <ng-container *ngFor="let user of users">
-              <tr [class.self-row]="user.id === loggedInUserId"> <!-- Style optionnel pour sa propre ligne -->
-                <td data-label="Nom">{{ user.firstName }} {{ user.lastName }}</td>
-                <td data-label="Email">{{ user.email }}</td>
-                <td data-label="Rôle">
-                   <span class="role-badge" [ngClass]="'role-' + user.role">{{ user.role === 'admin' ? 'Admin' : 'Client' }}</span>
-                </td>
-                <td data-label="Statut">
-                  <span class="status-badge" [ngClass]="{'status-active': user.isActive, 'status-inactive': !user.isActive}">
-                    {{ user.isActive ? 'Actif' : 'Inactif' }}
-                  </span>
-                </td>
-                <td data-label="Actions" class="actions-cell">
-                  <!-- Actions possibles si l'utilisateur N'EST PAS l'admin connecté -->
-                  <ng-container *ngIf="user.id !== loggedInUserId">
-                      <!-- Si l'utilisateur est ACTIF -->
-                      <ng-container *ngIf="user.isActive">
-                        <!-- Bouton Éditer -->
-                        <button class="btn btn-outline-primary btn-icon"
-                                (click)="openUserModal('edit', user)"
-                                title="Modifier l'utilisateur">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
-                        <!-- Bouton "Deactivate" -->
-                        <button class="btn btn-outline-warning btn-icon"
-                                (click)="updateUserStatus(user.id, false)"
-                                title="Désactiver l'utilisateur">
-                            <i class="bi bi-toggle-off"></i>
-                        </button>
-                         <!-- Bouton "Supprimer" -->
-                        <button class="btn btn-outline-danger btn-icon"
-                                (click)="openConfirmDeleteModal(user)"
-                                title="Supprimer l'utilisateur">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
-                      </ng-container>
-
-                      <!-- Si l'utilisateur est INACTIF -->
-                      <ng-container *ngIf="!user.isActive">
-                         <span class="inactive-placeholder">(Inactif)</span>
-                         <!-- Bouton "Réactiver" -->
-                         <button class="btn btn-outline-success btn-icon"
-                                 (click)="updateUserStatus(user.id, true)"
-                                 title="Réactiver l'utilisateur">
-                              <i class="bi bi-toggle-on"></i>
-                         </button>
-                          <!-- Bouton "Supprimer" (aussi pour inactifs) -->
-                         <button class="btn btn-outline-danger btn-icon"
-                                (click)="openConfirmDeleteModal(user)"
-                                title="Supprimer l'utilisateur">
-                            <i class="bi bi-trash3-fill"></i>
-                         </button>
-                      </ng-container>
-                  </ng-container>
-
-                   <!-- Message si c'est l'admin connecté -->
-                   <span *ngIf="user.id === loggedInUserId" class="self-placeholder">
-                       (Votre compte)
+           <thead>
+             <tr>
+               <th>Nom</th>
+               <th>Email</th>
+               <th>Rôle</th>
+               <th>Statut</th>
+               <th class="actions-header">Actions</th>
+             </tr>
+           </thead>
+           <tbody>
+              <ng-container *ngFor="let user of users">
+               <tr [class.self-row]="user.id === loggedInUserId">
+                 <td data-label="Nom">{{ user.firstName }} {{ user.lastName }}</td>
+                 <td data-label="Email">{{ user.email }}</td>
+                 <td data-label="Rôle">
+                    <span class="role-badge" [ngClass]="'role-' + user.role">{{ user.role === 'admin' ? 'Admin' : 'Client' }}</span>
+                 </td>
+                 <td data-label="Statut">
+                   <span class="status-badge" [ngClass]="{'status-active': user.isActive, 'status-inactive': !user.isActive}">
+                     {{ user.isActive ? 'Actif' : 'Inactif' }}
                    </span>
-                </td>
-              </tr>
-             </ng-container>
-          </tbody>
+                 </td>
+                 <td data-label="Actions" class="actions-cell">
+                   <ng-container *ngIf="user.id !== loggedInUserId">
+                       <ng-container *ngIf="user.isActive">
+                         <button class="btn btn-outline-primary btn-icon" (click)="openUserModal('edit', user)" title="Modifier l'utilisateur">
+                             <i class="bi bi-pencil-fill"></i>
+                         </button>
+                         <button class="btn btn-outline-warning btn-icon" (click)="updateUserStatus(user.id, false)" title="Désactiver l'utilisateur">
+                             <i class="bi bi-toggle-off"></i>
+                         </button>
+                          <button class="btn btn-outline-danger btn-icon" (click)="openConfirmDeleteModal(user)" title="Supprimer l'utilisateur">
+                             <i class="bi bi-trash3-fill"></i>
+                         </button>
+                       </ng-container>
+                       <ng-container *ngIf="!user.isActive">
+                          <span class="inactive-placeholder">(Inactif)</span>
+                          <button class="btn btn-outline-success btn-icon" (click)="updateUserStatus(user.id, true)" title="Réactiver l'utilisateur">
+                               <i class="bi bi-toggle-on"></i>
+                          </button>
+                          <button class="btn btn-outline-danger btn-icon" (click)="openConfirmDeleteModal(user)" title="Supprimer l'utilisateur">
+                             <i class="bi bi-trash3-fill"></i>
+                          </button>
+                       </ng-container>
+                   </ng-container>
+                    <span *ngIf="user.id === loggedInUserId" class="self-placeholder">
+                        (Votre compte)
+                    </span>
+                 </td>
+               </tr>
+              </ng-container>
+           </tbody>
         </table>
       </div>
-      <!-- Template si aucun utilisateur (inchangé) -->
       <ng-template #noUsers>
         <p class="no-users-message"><i class="bi bi-info-circle"></i> Aucun utilisateur trouvé.</p>
       </ng-template>
     </div>
+  </div>
 
-    <!-- Section Déconnexion SUPPRIMÉE -->
-    <!--
-    <footer class="dashboard-footer">
-      <button class="btn btn-danger" (click)="logout()">
-        <i class="bi bi-box-arrow-right"></i> Déconnexion
-      </button>
-    </footer>
-    -->
-
-  </div> <!-- Fin Section principale -->
-
-</div> <!-- Fin Container -->
+</div>
 
 
-<!-- Modales Ajout/Modification et Confirmation Suppression (inchangées) -->
+<!-- Modales -->
 <!-- ==================== MODALE AJOUT/MODIFICATION UTILISATEUR ==================== -->
 <div class="modal-backdrop" *ngIf="isUserModalOpen" (click)="closeUserModal()"></div>
-
 <div class="modal-container user-modal" *ngIf="isUserModalOpen">
   <div class="modal-content">
     <h3 class="modal-title">{{ modalMode === 'add' ? 'Ajouter un Nouvel Utilisateur' : 'Modifier l\'Utilisateur' }}</h3>
     <button class="close-modal-btn" (click)="closeUserModal()" title="Fermer">×</button>
-
-    <!-- Formulaire -->
     <form #userForm="ngForm" (ngSubmit)="saveUser(userForm)">
-        <!-- Affichage Erreur Modale -->
-        <div *ngIf="modalErrorMessage" class="alert alert-danger modal-error">
-             {{ modalErrorMessage }}
-        </div>
 
+        <!-- Reste du formulaire inchangé -->
         <div class="form-row">
              <!-- Prénom -->
             <div class="form-group">
@@ -185,7 +130,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Email -->
         <div class="form-group">
             <label for="email">Email</label>
@@ -197,8 +141,7 @@
                 <span *ngIf="emailInput.errors?.['email']">Format d'email invalide.</span>
             </div>
         </div>
-
-        <!-- Mot de passe (seulement pour l'ajout) -->
+        <!-- Mot de passe -->
         <div class="form-group" *ngIf="modalMode === 'add'">
             <label for="password">Mot de passe</label>
             <input type="password" id="password" name="password" class="form-control"
@@ -209,7 +152,6 @@
                 <span *ngIf="passwordInput.errors?.['minlength']">Minimum 6 caractères.</span>
             </div>
         </div>
-
          <!-- Rôle -->
         <div class="form-group">
             <label for="role">Rôle</label>
@@ -223,7 +165,6 @@
                 Rôle requis.
             </div>
         </div>
-
         <!-- Boutons Modale -->
         <div class="modal-actions">
              <button type="button" class="btn btn-secondary" (click)="closeUserModal()">Annuler</button>
@@ -241,7 +182,7 @@
 
 <!-- ==================== MODALE CONFIRMATION SUPPRESSION ==================== -->
 <div class="modal-backdrop" *ngIf="isConfirmModalOpen" (click)="closeConfirmModal()"></div>
-
+<!-- Contenu de la modale de confirmation inchangé -->
 <div class="modal-container confirm-modal" *ngIf="isConfirmModalOpen && userToDelete">
   <div class="modal-content">
      <h3 class="modal-title"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Confirmer la Suppression</h3>
@@ -250,7 +191,6 @@
          Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ userToDelete.firstName }} {{ userToDelete.lastName }}</strong> ({{ userToDelete.email }}) ?
      </p>
      <p class="confirm-warning">Cette action est irréversible.</p>
-
      <div class="modal-actions">
         <button type="button" class="btn btn-secondary" (click)="closeConfirmModal()">Annuler</button>
         <button type="button" class="btn btn-danger" (click)="confirmDeleteUser()" [disabled]="isDeletingUser">

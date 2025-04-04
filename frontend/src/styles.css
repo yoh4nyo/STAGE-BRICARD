@@ -2,3 +2,85 @@ body {
     font-family: "Montserrat", sans-serif;
 }
 html, body { height: 100%; }
+
+
+/* src/styles.css (ou .scss) */
+
+/* ===== PERSONNALISATION NGX-TOASTR ===== */
+
+/* Style général des toasts */
+/* Utiliser une spécificité un peu plus élevée pour s'assurer de surcharger */
+body .toast-container > div.ngx-toastr {
+    font-family: 'Montserrat', sans-serif; /* Correspondre à la police principale */
+    border-radius: 6px; /* Correspondre au border-radius général */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Correspondre au box-shadow */
+    padding: 15px 20px 15px 15px; /* Ajuster le padding */
+    opacity: 0.97; /* Légère transparence optionnelle */
+    color: #ffffff; /* Couleur de texte par défaut (sera surchargée par type) */
+  }
+  
+  /* Style du titre */
+  body .toast-container > div.ngx-toastr .toast-title {
+    font-weight: 600; /* Correspondre au poids des titres h3 */
+    font-size: 1.1em; /* Un peu plus grand */
+  }
+  
+  /* Style du message */
+  body .toast-container > div.ngx-toastr .toast-message {
+    font-size: 0.95em; /* Taille standard */
+    padding-top: 5px;
+  }
+  
+  /* Bouton fermer */
+  body .toast-container > div.ngx-toastr button.toast-close-button {
+    color: inherit; /* Hérite de la couleur du texte du toast */
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+  body .toast-container > div.ngx-toastr button.toast-close-button:hover {
+    opacity: 1;
+  }
+  
+  /* Barre de progression */
+  body .toast-container > div.ngx-toastr .toast-progress {
+    height: 4px; /* Épaisseur de la barre */
+    opacity: 0.8;
+  }
+  
+  /* --- Styles par type de toast --- */
+  
+  /* SUCCESS -> Orange */
+  body .toast-container > div.toast-success {
+    background-color: #FF6701; /* Brand Orange */
+    color: #ffffff;
+  }
+  body .toast-container > div.toast-success .toast-progress {
+    background-color: #ffffff; /* Blanc sur orange */
+  }
+  
+  /* ERROR -> Rouge */
+  body .toast-container > div.toast-error {
+    background-color: #D32F2F; /* Brand Danger */
+    color: #ffffff;
+  }
+  body .toast-container > div.toast-error .toast-progress {
+    background-color: #ffffff; /* Blanc sur rouge */
+  }
+  
+  /* WARNING -> Ambre/Orange Foncé */
+  body .toast-container > div.toast-warning {
+    background-color: #FFA726; /* Brand Warning */
+    color: #343a40; /* Texte foncé pour contraste */
+  }
+  body .toast-container > div.toast-warning .toast-progress {
+    background-color: #343a40; /* Barre foncée sur fond clair */
+  }
+  
+  /* INFO -> Bleu */
+  body .toast-container > div.toast-info {
+    background-color: #005A9C; /* Brand Blue */
+    color: #ffffff;
+  }
+  body .toast-container > div.toast-info .toast-progress {
+    background-color: #ffffff; /* Blanc sur bleu */
+  }
